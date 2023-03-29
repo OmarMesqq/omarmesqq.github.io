@@ -1,11 +1,12 @@
-#body-bright {
+#body-light {
 
-    background-color: #7004f4;
+    background-color: #E6E6E3;
     font-family: "Roboto", sans-serif;
-    font-size: 48px;
+    font-size: 20px;
 
 }
 
-/* 
-#f4f7f9 (pseude white)
-*/ 
+#main-header {
+    font-family: "Roboto", sans-serif;
+    font-size: 36px;
+}
