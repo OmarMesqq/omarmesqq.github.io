@@ -7,7 +7,6 @@ function loadcss() {
 		fileref.type = "text/css";
 		fileref.href = "../css/dark.css";
 		document.getElementsByTagName("head")[0].appendChild(fileref)
-		console.log("Dark")
 
 	}
 
@@ -18,7 +17,6 @@ function loadcss() {
 		fileref.type = "text/css";
 		fileref.href = "../css/light.css";
 		document.getElementsByTagName("head")[0].appendChild(fileref)
-		console.log("Light")
 	}
 
 
