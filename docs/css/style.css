@@ -11,13 +11,13 @@ h1 {
 	font-family: "Roboto", sans-serif;
 	font-size: 36px;
 	color: #141021;
-	background-color: transparent;
+	
 }
 
 p {
 
 	color: #141021;
-	background-color: transparent;
+	
 }
 
 
@@ -35,7 +35,6 @@ p {
 	h1 {
 	
 		font-family: "Roboto", sans-serif;
-		background-color: transparent;
 		font-size: 36px;
 		color: #E6E6E3;
 		
@@ -44,7 +43,6 @@ p {
 	p {
 
 		color: #E6E6E3;
-		background-color: transparent;
 	
 	}
 	
