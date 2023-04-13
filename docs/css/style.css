@@ -1,0 +1,48 @@
+body {
+
+	background-color: #E6E6E3;
+	font-family: "Roboto", sans-serif;
+	font-size: 20px;
+
+}
+
+h1 {
+
+	font-family: "Roboto", sans-serif;
+	font-size: 36px;
+	color: #141021;
+}
+
+p {
+
+	color: #141021;
+}
+
+
+@media (prefers-color-scheme: dark) {
+
+	body {
+
+
+		background-color: #141021;
+		font-family: "Roboto", sans-serif;
+		font-size: 20px;
+	
+	}
+	
+	h1 {
+	
+		font-family: "Roboto", sans-serif;
+		font-size: 36px;
+		color: #E6E6E3;
+		
+	}
+	
+	p {
+
+		color: #E6E6E3;
+	
+	}
+	
+
+}
