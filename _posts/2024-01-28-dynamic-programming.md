@@ -4,6 +4,8 @@ title:  "What is Dynamic Programming?"
 date:   2024-01-28 11:00:00 -0300
 categories: tech
 ---
+{% include mathjax.html %}
+
 Dynamic programming (DP) is usually defined as a particular way of solving problems by breaking it down into simpler, easier
 sub-problems. It's a common pattern in coding platforms like Leetcode and HackerRank even though not always is this nomenclature
 present. 
@@ -28,7 +30,7 @@ more performant than the respective recursive ones.
 
 Indeed, for production-ready software (which should use large values for `n`) pushing a frame to the call stack 
 for each function invocation can drastically affect program performance (for the worse). Moreover, the exponential time
-complexity of the recursive algorithm $ O(n^2) $ slows it down for large inputs. 
+complexity of the recursive algorithm $$ O(n^2) $$ slows it down for large inputs. 
 
 Still, using recursion, especially 
 in the context of functional programming, can be more [mathematically elegant][wikipedia-math-elegance] and readable, which raises
@@ -53,7 +55,7 @@ def fibonacci(n):
 
 In this code, we define a `memoize` function  that **acts as 
 decorator** for the actual Fibonacci algorithm. This means that when `fibonacci` is called, actually, the `wrapper` function is returned, which cuts down algorithmic complexity
-to $ O(n) $.
+to $$ O(n) $$.
 
 This happens because `memoize` closes over the `cache` dictionary. Since the capture "remembers" the cache variable
 even when it goes out of scope, for all Fibonacci calculation
