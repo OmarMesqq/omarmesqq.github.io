@@ -21,7 +21,7 @@
 title: OmarMesqq's blog
 email: omarmsqt@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  An engineering blog with some random thoughts
+  An engineering blog and some random thoughts
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: jekyllrb
