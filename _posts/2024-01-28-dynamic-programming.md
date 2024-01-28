@@ -1,29 +1,69 @@
 ---
 layout: post
-title:  "Welcome to Jekyll!"
-date:   2024-01-28 00:17:06 -0300
-categories: jekyll update
+title:  "What is Dynamic Programming?"
+date:   2024-01-28 11:00:00 -0300
+categories: tech
 ---
-You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
+Dynamic programming (DP) is usually defined as a particular way of solving problems by breaking it down into simpler, easier
+sub-problems. It's a common pattern in coding platforms like Leetcode and HackerRank even though not always is this nomenclature
+present. 
 
-Jekyll requires blog post files to be named according to the following format:
+Anyways, how does DP happen in practice and why is it important after all? Let's have a look at one of its main approaches:
 
-`YEAR-MONTH-DAY-title.MARKUP`
+#### Memoization (top-down)
+A common programming problem in colleges, bootcamps, and coding sites is the calculation of the Fibonacci number at
+the `nth` position. In Python, one can do:
 
-Where `YEAR` is a four-digit number, `MONTH` and `DAY` are both two-digit numbers, and `MARKUP` is the file extension representing the format used in the file. After that, include the necessary front matter. Take a look at the source for this post to get an idea about how it works.
+```python
+def fibonacci(n):
+    if n <= 1:
+        return n
+    else:
+        return fibonacci(n - 1) + fibonacci(n - 2)
+```
 
-Jekyll also offers powerful support for code snippets:
+which is the most straightforward solution for the problem. Afterall, the Fibonacci sequence **is** a recursive sequence.
+Someone might want to implement an iterative version of this solution — which is perfectly valid since these usually are 
+more performant than the respective recursive ones.
 
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
-{% endhighlight %}
+Indeed, for production-ready software (which should use large values for `n`) pushing a frame to the call stack 
+for each function invocation can drastically affect program performance (for the worse). Moreover, the exponential time
+complexity of the recursive algorithm $ O(n^2) $ slows it down for large inputs. 
 
-Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
+Still, using recursion, especially 
+in the context of functional programming, can be more [mathematically elegant][wikipedia-math-elegance] and readable, which raises
+another problem: how to optimize recursive solutions? Behold, **memoization**:
 
-[jekyll-docs]: https://jekyllrb.com/docs/home
-[jekyll-gh]:   https://github.com/jekyll/jekyll
-[jekyll-talk]: https://talk.jekyllrb.com/
+```python
+def memoize(func):
+  cache = {}
+  def wrapper(n):
+      if n not in cache:
+          cache[n] = func(n)
+      return cache[n]
+  return wrapper
+
+@memoize
+def fibonacci(n):
+    if n <= 1:
+        return n
+    else:
+        return fibonacci(n - 1) + fibonacci(n - 2)
+```
+
+In this code, we define a `memoize` function  that **acts as 
+decorator** for the actual Fibonacci algorithm. This means that when `fibonacci` is called, actually, the `wrapper` function is returned, which cuts down algorithmic complexity
+to $ O(n) $.
+
+This happens because `memoize` closes over the `cache` dictionary. Since the capture "remembers" the cache variable
+even when it goes out of scope, for all Fibonacci calculation
+invocations the computation's result will be stored for future reuse. This means that if you run `fibonacci(5)` and then `fibonacci(10)` you will get the result mostly in linear time due to the caching of the result for all integers less
+or equal than 5.
+
+In conclusion, memoizing functions can greatly reduce program
+overhead especially if you are making use of top-down (recursive) solutions in your code. This approach allows 
+you to have the readability and beauty of recursive code 
+and not sacrifing performance. 
+
+
+[wikipedia-math-elegance]: https://en.wikipedia.org/wiki/Mathematical_beauty
