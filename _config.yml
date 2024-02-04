@@ -32,6 +32,10 @@ theme: minima
 plugins:
   - jekyll-feed
   - jekyll-latex
+  - jekyll-mermaid
+
+mermaid:
+  src: '/assets/mermaid.min.js'
 
 # Exclude from processing.
 # The following items will not be processed, by default.
