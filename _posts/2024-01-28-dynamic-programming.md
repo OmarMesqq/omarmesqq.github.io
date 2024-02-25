@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "What is Dynamic Programming?"
+title:  "What is dynamic programming?"
 date:   2024-01-28 11:00:00 -0300
 categories: tech
 ---
