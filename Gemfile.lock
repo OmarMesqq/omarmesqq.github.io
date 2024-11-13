@@ -176,7 +176,6 @@ DEPENDENCIES
   base64
   csv
   jekyll (~> 4.3.4)
-  jekyll-feed (~> 0.12)
   logger
   minima (~> 2.5)
   ostruct
