@@ -22,5 +22,4 @@ void enqueue(Queue* Queue, Neighbour* nb);
 QueueNode* dequeue(Queue* Queue);
 int is_queue_empty(Queue* Queue);
 void free_queue(Queue* Queue);
-static void _print_queue(Queue* Queue);
 #endif

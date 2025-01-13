@@ -72,14 +72,3 @@ void free_queue(Queue* q) {
     }
     free(q);
 }
-
-static void _print_queue(Queue* q) {
-    if (!q) return;
-
-    QueueNode* current = q->front;
-    while (current != NULL) {
-        printf("%d (%p) ", current->nb->currentNeighbour, current->nb);
-        current = current->next;
-    }
-    printf("\n");
-}
