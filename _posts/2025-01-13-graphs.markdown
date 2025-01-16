@@ -17,7 +17,7 @@ as $$ 8 \to 7 $$ are equivalent to $$ 7 \to 8 $$. Furthermore, you may notice th
 in the future as we will be implementing breadth-first search and Kruskal's algorithm.
 
 Still, before we delve into the realm of graph algorithms, we aim to visualize it first and foremost.
-In order to achieve this, clever people came up (or discovered if will) two main ways of *describing* graphs:
+In order to achieve this, clever people came up (or discovered if you will) two main ways of *describing* graphs:
 
 - [Adjacency list](https://en.wikipedia.org/wiki/Adjacency_list)
 - [Adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix)
@@ -29,8 +29,8 @@ it's easier and, specially when implemented in a low level language, you get to 
 the **multidimensionality** of graphs.
 
 ### Project structure
-I coded this in C, partly because it's mandatory as per course specification, but I should mention
--- altough utterly unnecessarily -- I enjoy this language very much. The project's structure is available below and can be accessed
+I coded this in C, partly because it's mandatory as per course specification, although I should mention
+that I enjoy coding in this language. The project's structure is available below and can be accessed
 by appending `projects/graphs` to my blog's root URL so you can see it all.
 
 I wholeheartedly receive critics, suggestions, and contributions, but since I have zero expectations
@@ -48,6 +48,70 @@ of a simple FIFO [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type
 
 ### Code description
 
+Let us first understand the declared data types in `graph.h` used to represent the graph using a bottom-up approach: 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.h %}
+{% include_absolute projects/graphs/graph.h, 4-17 %}
 {% endhighlight %}
+
+
+The `Neighbour` struct represents an adjacency list of an arbitrary vertex `i` -- showing
+who the `currentNeighbour` is, the `weight` of the analyzed edge and a pointer to the `next` possible neihbouring
+node of `i`. You can keep traversing this linked list until you hit the case in which `next` is `NULL`, indicating
+that there are no more neighbours of `i` left.
+
+The `Graph` type includes two simple integer counters that track the *maximum* number of vertices `nv` 
+-- read-only, passed during initialization -- and the number of edges `ne` that grows as these are included in the DS.
+The `Neighbour** nb` has the actual graph representation as a list of adjacency lists: you get the neighbours of
+a given vertex `i` by reading `nb[i]` in linear time.
+
+I should say, though, that the `graph.h` was supplied as part of the assignment and, thus, I couldn't really
+think of new, more interesting ways of representing the graph, but I think that having $$ O(n) $$ time complexity
+here shouldn't be much of an issue. Also, I do not know of further optimizations people do regarding this DS:
+[it's a whole part of Computer Science](https://en.wikipedia.org/wiki/Graph_theory).
+
+The last custom type is called `Edge` which I created for use in [Kruskal's algorithm](https://en.wikipedia.org/wiki/Kruskal%27s_algorithm):
+{% highlight c %}
+{% include_absolute projects/graphs/graph.h, 20-24 %}
+{% endhighlight %}
+
+The significant difference from this data type to `Neighbour` lies in the fact that `Edge`
+encapsulates all the necessary information for describing an edge in a graph inside its memory
+layout. The two vertices `u` and `v` along with the weight are all the information needed
+to generate a [minimum spanning tree](https://en.wikipedia.org/wiki/Minimum_spanning_tree). More on that later.
+
+Finally, the ~~public~~ exposed functions from the `graph.c` file are listed below:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.h, 26-32 %}
+{% endhighlight %}
+
+I won't blab about all these functions since some are trivial to understand and quite standard from a C programming perspective.
+The focus of this post lies on `bfs`, `kruskal`, and some `static` helper functions declared in the source file which are crucial
+for the latter.
+
+Still, before we dive deep into breadth-first search and Kruskal's, I'll unfurl the queue implementation for a matter
+of completion. Feel free to skip it, if you fancy.
+
+{% highlight c %}
+{% include_absolute projects/graphs/queue.h, 4-17 %}
+{% endhighlight %}
+
+The queue will only really be used in BFS. As such, the first type `QueueNode` only needs a pointer
+to the neighbouring vertex and another one for the next node in queue.
+The `Queue` itself has members for the front and the back of the ADT, since 
+we'll be needing constant time for both `front` read and `back` write -- afterall, this where this data
+structure excels.
+
+The exposed functions are:
+{% highlight c %}
+{% include_absolute projects/graphs/queue.h, 20-24 %}
+{% endhighlight %}
+
+Again, pretty usual stuff. Both `enqueue` and `dequeue` run in $$O(1)$$ time just like a standard queue.
+`is_queue_empty` evaluates the `q->front` pointer giving us information on remaining vertices in queue.
+Consequentially, we are able control the graph traversal using this auxiliary structure.
+
+An interesting difference in my `dequeue` implementation is that it encompasses **peeking and popping**, i.e.
+it returns the `QueueNode` in front of the queue and moves on with it. I found this approach
+easier to implement in the BFS algorithm, even though you have to be extra careful regarding leaking
+memory and losing information.
+
