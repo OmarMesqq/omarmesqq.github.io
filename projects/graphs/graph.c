@@ -45,14 +45,14 @@ void add_edge(Graph* g, int vertex1, int vertex2, float weight) {
 
     // Create the edge from vertex2 to vertex1.
     Neighbour* nb = (Neighbour*) malloc(sizeof(Neighbour));
-    nb->currentNeighbour = vertex2;
+    nb->vertexValue = vertex2;
     nb->weight = weight;
     nb->next = g->nb[vertex1];
     g->nb[vertex1] = nb;
 
     // Since the graph is undirected, also create the edge from vertex1 to vertex2
     nb = (Neighbour*)malloc(sizeof(Neighbour));
-    nb->currentNeighbour = vertex1;
+    nb->vertexValue = vertex1;
     nb->weight = weight;
     nb->next = g->nb[vertex2];
     g->nb[vertex2] = nb;
@@ -73,7 +73,7 @@ void print_as_adjacency_list(Graph* g) {
         printf("%d: ", i);
         // Iterates through the adjacency list of vertex i
         while (v) {
-            printf("-> %d (weight: %.2f) ", v->currentNeighbour, v->weight);
+            printf("-> %d (weight: %.2f) ", v->vertexValue, v->weight);
             v = v->next;
         }
         printf("\n");
@@ -91,7 +91,7 @@ void print_as_adjacency_matrix(Graph* g) {
     for (int i = 0; i < g->nv; i++) {
         Neighbour* v = g->nb[i];
         while (v) {
-            matrix[i][v->currentNeighbour] = v->weight;
+            matrix[i][v->vertexValue] = v->weight;
             v = v->next;
         }
     }
@@ -139,26 +139,31 @@ void bfs(Graph* g, int initialVertex) {
 
     do {
         QueueNode* qn = dequeue(verticesToVisit);
-        Neighbour* neighbours;
         int currentVertexValue;
+        Neighbour* currentVertexNeighbours;
         if (!qn) {
             // First pass
             currentVertexValue = initialVertex;
+
             printf("Visiting %d\n", currentVertexValue);
             visited[currentVertexValue] = 1;
-            neighbours = g->nb[currentVertexValue];
+
+            currentVertexNeighbours = g->nb[currentVertexValue];
         } else {
             Neighbour* currentVertex = qn->nb;
-            int currentVertexValue = currentVertex->currentNeighbour;
+            currentVertexValue = currentVertex->vertexValue;
             
             printf("Visiting %d\n", currentVertexValue);
-            neighbours = g->nb[currentVertexValue];
+            visited[currentVertexValue] = 1;
+
+            currentVertexNeighbours = g->nb[currentVertexValue];
+
             free(currentVertex);
             free(qn);
         }
         
-        while (neighbours) {
-            currentVertexValue = neighbours->currentNeighbour;
+        while (currentVertexNeighbours) {
+            currentVertexValue = currentVertexNeighbours->vertexValue;
             if (!visited[currentVertexValue]) {
                 visited[currentVertexValue] = 1;
 
@@ -167,12 +172,12 @@ void bfs(Graph* g, int initialVertex) {
                     printf("Memory allocation failed during neighbour copy creation in BFS.\n");
                     return;
                 }
-                neighbourCopy->currentNeighbour = neighbours->currentNeighbour;
-                neighbourCopy->weight = neighbours->weight;
-                neighbourCopy->next =  neighbours->next;
+                neighbourCopy->vertexValue = currentVertexNeighbours->vertexValue;
+                neighbourCopy->weight = currentVertexNeighbours->weight;
+                neighbourCopy->next =  currentVertexNeighbours->next;
                 enqueue(verticesToVisit, neighbourCopy);
             }
-            neighbours = neighbours->next;
+            currentVertexNeighbours = currentVertexNeighbours->next;
         }
         
     } while(!is_queue_empty(verticesToVisit));
@@ -200,8 +205,8 @@ Graph* kruskal(Graph* g) {
     for (int i = 0; i < g->nv; i++) {
         for (Neighbour* nb = g->nb[i]; nb != NULL; nb = nb->next) {
             // Perform deduplication
-            if (i < nb->currentNeighbour) {
-                edges[edgeIndex++] = (Edge) {i, nb->currentNeighbour, nb->weight};
+            if (i < nb->vertexValue) {
+                edges[edgeIndex++] = (Edge) {i, nb->vertexValue, nb->weight};
             }
         }
     }
