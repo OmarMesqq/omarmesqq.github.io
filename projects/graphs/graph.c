@@ -6,9 +6,9 @@
 #include <limits.h>
 
 // Auxiliary functions
-static void _pretty_print_matrix(float **matriz, int tam);
+static void _pretty_print_matrix(float **matrix, int tam);
 static int _compare_edges(const void* a, const void* b);
-static int _find(int* parents, int vertice);
+static int _find(int* parents, int vertex);
 static void _unionSets(int* parents, int* rank, int u, int v);
 
 
@@ -83,25 +83,25 @@ void print_as_adjacency_list(Graph* g) {
 void print_as_adjacency_matrix(Graph* g) {
     if (!g) return;
 
-    float** matriz = (float**) malloc(g->nv * sizeof(float*));
+    float** matrix = (float**) malloc(g->nv * sizeof(float*));
     for (int i = 0; i < g->nv; i++) {
-        matriz[i] = (float*) calloc(g->nv, sizeof(float));
+        matrix[i] = (float*) calloc(g->nv, sizeof(float));
     }
 
     for (int i = 0; i < g->nv; i++) {
         Neighbour* v = g->nb[i];
         while (v) {
-            matriz[i][v->currentNeighbour] = v->weight;
+            matrix[i][v->currentNeighbour] = v->weight;
             v = v->next;
         }
     }
 
-    _pretty_print_matrix(matriz, g->nv); 
+    _pretty_print_matrix(matrix, g->nv); 
 
     for (int i = 0; i < g->nv; i++) {
-        free(matriz[i]);
+        free(matrix[i]);
     }
-    free(matriz);
+    free(matrix);
 }
 
 void free_graph(Graph* g) {
@@ -244,7 +244,7 @@ Graph* kruskal(Graph* g) {
     OR the MST is complete, that is, it has g->nv - 1 edges
     The edges are processed in ascending order, due to previous sorting
     */
-    for (int i = 0, arestasIncluidas = 0; i < g->ne && arestasIncluidas < g->nv - 1; i++) {
+    for (int i = 0, includedEdges = 0; i < g->ne && includedEdges < g->nv - 1; i++) {
         int u = edges[i].u;
         int v = edges[i].v;
         float weight = edges[i].weight;
@@ -258,7 +258,7 @@ Graph* kruskal(Graph* g) {
             add_edge(mst, u, v, weight);
             // Joins the sets of both vertices to reflect the current nature of the MST post edge inclusion
             _unionSets(parents, rank, u, v);
-            arestasIncluidas++;
+            includedEdges++;
         }
     }
 
@@ -270,14 +270,14 @@ Graph* kruskal(Graph* g) {
 }
 
 
-static void _pretty_print_matrix(float **matriz, int tam) {
+static void _pretty_print_matrix(float** matrix, int tam) {
     // Gets columns (j) with values != 0, creating a list of "active" columns
     int active_columns[tam];
     for (int j = 0; j < tam; j++) {
         // Initially, assume all columns are inactive
         active_columns[j] = 0;
         for (int i = 0; i < tam; i++) {
-            if (matriz[i][j] != 0) {
+            if (matrix[i][j] != 0) {
                 // Column has value != 0, activate it
                 active_columns[j] = 1;
                 break;
@@ -298,7 +298,7 @@ static void _pretty_print_matrix(float **matriz, int tam) {
     for (int i = 0; i < tam; i++) {
         int row_has_value = 0;
         for (int j = 0; j < tam; j++) {
-            if (matriz[i][j] != 0) {
+            if (matrix[i][j] != 0) {
                 row_has_value = 1;
                 break;
             }
@@ -309,8 +309,8 @@ static void _pretty_print_matrix(float **matriz, int tam) {
             printf("%3d", i);
             for (int j = 0; j < tam; j++) {
                 if (active_columns[j]) {
-                    if (matriz[i][j] != 0) {
-                        printf("%6.2f", matriz[i][j]);
+                    if (matrix[i][j] != 0) {
+                        printf("%6.2f", matrix[i][j]);
                     } else {
                         printf("%6.0f", 0.0);
                     }
@@ -323,38 +323,38 @@ static void _pretty_print_matrix(float **matriz, int tam) {
 
 // Compares two edges by their weight
 static int _compare_edges(const void* a, const void* b) {
-    Edge* arestaA = (Edge*) a;
-    Edge* arestaB = (Edge*) b;
-    if (arestaA->weight < arestaB->weight) return -1;
-    if (arestaA->weight > arestaB->weight) return 1;
+    Edge* edgeA = (Edge*) a;
+    Edge* edgeB = (Edge*) b;
+    if (edgeA->weight < edgeB->weight) return -1;
+    if (edgeA->weight > edgeB->weight) return 1;
     return 0;
 }
 
 // Search with path compression, avoiding cycles in the MST
-static int _find(int* parents, int vertice) {
-    if (parents[vertice] != vertice) {
+static int _find(int* parents, int vertex) {
+    if (parents[vertex] != vertex) {
         // Compression ("flattens" the tree): as the call stack unwinds, previous vertices point to the parent of the set 
-        parents[vertice] = _find(parents, parents[vertice]);
+        parents[vertex] = _find(parents, parents[vertex]);
     }
 
     // Vertex already is the root/parent of current set
-    return parents[vertice];
+    return parents[vertex];
 }
 
 // Performs union (U) of two, initially disjoint, sets
 static void _unionSets(int* parents, int* rank, int u, int v) {
-    int raizU = _find(parents, u);
-    int raizV = _find(parents, v);
+    int rootU = _find(parents, u);
+    int rootV = _find(parents, v);
 
     // Picks the set with greatest rank ("height") in order to avoid deep and splay trees
-    if (raizU != raizV) {
-        if (rank[raizU] > rank[raizV]) {
-            parents[raizV] = raizU;
-        } else if (rank[raizU] < rank[raizV]) {
-            parents[raizU] = raizV;
+    if (rootU != rootV) {
+        if (rank[rootU] > rank[rootV]) {
+            parents[rootV] = rootU;
+        } else if (rank[rootU] < rank[rootV]) {
+            parents[rootU] = rootV;
         } else {
-            parents[raizV] = raizU;
-            rank[raizU]++;
+            parents[rootV] = rootU;
+            rank[rootU]++;
         }
     }
 }
