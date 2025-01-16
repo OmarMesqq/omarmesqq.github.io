@@ -55,7 +55,7 @@ Let us first understand the declared data types in `graph.h` used to represent t
 
 
 The `Neighbour` struct represents an adjacency list of an arbitrary vertex `i` -- showing
-who the `currentNeighbour` is, the `weight` of the analyzed edge and a pointer to the `next` possible neihbouring
+the `vertexValue` of the neighbouring node, the `weight` of its edge and a pointer to the `next` possible neighbouring
 node of `i`. You can keep traversing this linked list until you hit the case in which `next` is `NULL`, indicating
 that there are no more neighbours of `i` left.
 
@@ -115,3 +115,4 @@ it returns the `QueueNode` in front of the queue and moves on with it. I found t
 easier to implement in the BFS algorithm, even though you have to be extra careful regarding leaking
 memory and losing information.
 
+### Breadth-first search (BFS)
