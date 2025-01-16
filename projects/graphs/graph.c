@@ -199,12 +199,12 @@ Graph* kruskal(Graph* g) {
         return NULL;
     };
 
-    int indiceDaAresta = 0;
+    int edgeIndex = 0;
     for (int i = 0; i < g->nv; i++) {
         for (Neighbour* nb = g->nb[i]; nb != NULL; nb = nb->next) {
             // Perform deduplication
             if (i < nb->currentNeighbour) {
-                edges[indiceDaAresta++] = (Edge) {i, nb->currentNeighbour, nb->weight};
+                edges[edgeIndex++] = (Edge) {i, nb->currentNeighbour, nb->weight};
             }
         }
     }
@@ -212,7 +212,7 @@ Graph* kruskal(Graph* g) {
     // Sort the edges by weight using quick sort
     qsort(edges, g->ne, sizeof(Edge), _compare_edges);
 
-    // Inicializamos a Union-Find (DSU)
+    // Initialize the Union-Find DS (DSU)
     int* parents = (int*) malloc(g->nv * sizeof(int));
     int* rank = (int*) calloc(g->nv, sizeof(int));
     if (!parents || !rank) {
