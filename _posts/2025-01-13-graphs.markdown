@@ -4,3 +4,46 @@ title:  "Graphs"
 date:   2025-01-13 14:56:36 -0300
 categories:
 ---
+
+I was assigned a college project on [graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) and decided to share
+my implementation with the world since these are very interesting and useful data structures, and, also, because I got an A at
+it so I guess it should be good enough to go public.
+
+This is the graph we will be discussing:
+![Graph](../../../visual_assets/undirected_graph.png)
+
+The caption says "Undirected graph", and, as you can see, it is indeed undirected since edges (also known as links) such
+as $$ 8 \to 7 $$ are equivalent to $$ 7 \to 8 $$. Furthermore, you may notice that the graph is **weighted** which will be important
+in the future as we will be implementing breadth-first search and Kruskal's algorithm.
+
+Still, before we delve into the realm of graph algorithms, we aim to visualize it first and foremost.
+In order to achieve this, clever people came up (or discovered if will) two main ways of *describing* graphs:
+
+- [Adjacency list](https://en.wikipedia.org/wiki/Adjacency_list)
+- [Adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix)
+
+This is a very important point regarding this data structure: although graphs are usually pictured 
+like the screenshot above i.e with cute, rounded vertices and clear weights in the edges, in 
+real life, people work with *representations* of them. I do not know why's that but I am guessing
+it's easier and, specially when implemented in a low level language, you get to confront
+the **multidimensionality** of graphs.
+
+### Project structure
+I coded this in C, partly because it's mandatory as per course specification, but I should mention
+-- altough completely unnecessary -- I enjoy this language very much. The project's structure is available below and can be accessed
+by appending `projects/graphs` to my blog's root URL so you can see it all.
+
+I wholeheartedly receive critics, suggestions, and contributions, but since I have zero expectations
+regarding people commiting to this project, it's not Git versioned (yet!).
+
+- [graph.c](../../../projects/graphs/graph.c)
+- [graph.h](../../../projects/graphs/graph.h)
+- [main.c](../../../projects/graphs/main.c)
+- [queue.c](../../../projects/graphs/queue.c)
+- [queue.h](../../../projects/graphs/queue.h)
+
+The first two `graph.h` and `graph.c` files correspond to definitions and implementations of the graph API which we will
+be using in `main.c`, whereas `queue.h` and `queue.c` contain the definitions and implementations
+of a simple FIFO [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)).
+
+### Code description
