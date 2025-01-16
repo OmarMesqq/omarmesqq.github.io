@@ -137,49 +137,46 @@ void bfs(Graph* g, int initialVertex) {
         return;
     }
 
-    printf("Starting BFS from vertex %d\n", initialVertex);
-
-    // Enqueue initial vertex
-    Neighbour* initial = (Neighbour*) malloc(sizeof(Neighbour));
-    if (!initial) {
-        printf("Memory allocation failed during initial vertex creation in BFS.\n");
-        return;
-    }
-    initial->currentNeighbour = initialVertex;
-    initial->weight = INT_MIN;
-    initial->next = NULL;
-
-    enqueue(verticesToVisit, initial);
-    
-    while (!is_queue_empty(verticesToVisit)) {
-        QueueNode* currentVertex = dequeue(verticesToVisit);
-        Neighbour* currentNeighbour = currentVertex->nb;
+    do {
+        QueueNode* qn = dequeue(verticesToVisit);
+        Neighbour* neighbours;
+        int currentVertexValue;
+        if (!qn) {
+            // First pass
+            currentVertexValue = initialVertex;
+            printf("Visiting %d\n", currentVertexValue);
+            visited[currentVertexValue] = 1;
+            neighbours = g->nb[currentVertexValue];
+        } else {
+            Neighbour* currentVertex = qn->nb;
+            int currentVertexValue = currentVertex->currentNeighbour;
+            
+            printf("Visiting %d\n", currentVertexValue);
+            neighbours = g->nb[currentVertexValue];
+            free(currentVertex);
+            free(qn);
+        }
         
-        printf("Visiting %d\n", currentNeighbour->currentNeighbour);
-        visited[currentNeighbour->currentNeighbour] = 1;
-        free(currentVertex);
+        while (neighbours) {
+            currentVertexValue = neighbours->currentNeighbour;
+            if (!visited[currentVertexValue]) {
+                visited[currentVertexValue] = 1;
 
-        // Iterates over each neighbour of the current vertex 
-        Neighbour* nb = g->nb[currentNeighbour->currentNeighbour];
-        while (nb) {
-            if (!visited[nb->currentNeighbour]) {
-                visited[nb->currentNeighbour] = 1;
-
-                // Enqueues a neighbour copy
                 Neighbour* neighbourCopy = (Neighbour*) malloc(sizeof(Neighbour));
                 if (!neighbourCopy) {
                     printf("Memory allocation failed during neighbour copy creation in BFS.\n");
                     return;
                 }
-                neighbourCopy->currentNeighbour = nb->currentNeighbour;
-                neighbourCopy->weight = nb->weight;
-                neighbourCopy->next =  nb->next;
+                neighbourCopy->currentNeighbour = neighbours->currentNeighbour;
+                neighbourCopy->weight = neighbours->weight;
+                neighbourCopy->next =  neighbours->next;
                 enqueue(verticesToVisit, neighbourCopy);
             }
-            nb = nb->next;
+            neighbours = neighbours->next;
         }
-        free(currentNeighbour);
-    }
+        
+    } while(!is_queue_empty(verticesToVisit));
+    
 
     free_queue(verticesToVisit);
     free(visited);
