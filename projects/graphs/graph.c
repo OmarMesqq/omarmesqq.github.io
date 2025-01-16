@@ -121,7 +121,7 @@ void free_graph(Graph* g) {
 /*
 Performs breadth-first search (BFS)
 */
-void bfs(Graph* g, int initialVertex) {
+void bfs(Graph* g, int initialVertexValue) {
     if (!g) return;
 
     // Queue and visited vertices list creation
@@ -141,9 +141,10 @@ void bfs(Graph* g, int initialVertex) {
         QueueNode* qn = dequeue(verticesToVisit);
         int currentVertexValue;
         Neighbour* currentVertexNeighbours;
+
         if (!qn) {
             // First pass
-            currentVertexValue = initialVertex;
+            currentVertexValue = initialVertexValue;
 
             printf("Visiting %d\n", currentVertexValue);
             visited[currentVertexValue] = 1;
@@ -152,9 +153,6 @@ void bfs(Graph* g, int initialVertex) {
         } else {
             Neighbour* currentVertex = qn->nb;
             currentVertexValue = currentVertex->vertexValue;
-            
-            printf("Visiting %d\n", currentVertexValue);
-            visited[currentVertexValue] = 1;
 
             currentVertexNeighbours = g->nb[currentVertexValue];
 
@@ -162,21 +160,28 @@ void bfs(Graph* g, int initialVertex) {
             free(qn);
         }
         
+        // After acquiring a vertex, iterate through all of its neighbours
         while (currentVertexNeighbours) {
             currentVertexValue = currentVertexNeighbours->vertexValue;
             if (!visited[currentVertexValue]) {
+                /*
+                If the vertex hasn't been visited yet, visit it
+                and enqueue a copy of it to visit its neighbours later on
+                */
+                printf("Visiting %d\n", currentVertexValue);
                 visited[currentVertexValue] = 1;
 
-                Neighbour* neighbourCopy = (Neighbour*) malloc(sizeof(Neighbour));
-                if (!neighbourCopy) {
-                    printf("Memory allocation failed during neighbour copy creation in BFS.\n");
+                Neighbour* vertexCopy = (Neighbour*) malloc(sizeof(Neighbour));
+                if (!vertexCopy) {
+                    printf("Memory allocation failed during vertex copy creation in BFS.\n");
                     return;
                 }
-                neighbourCopy->vertexValue = currentVertexNeighbours->vertexValue;
-                neighbourCopy->weight = currentVertexNeighbours->weight;
-                neighbourCopy->next =  currentVertexNeighbours->next;
-                enqueue(verticesToVisit, neighbourCopy);
+                vertexCopy->vertexValue = currentVertexNeighbours->vertexValue;
+                vertexCopy->weight = currentVertexNeighbours->weight;
+                vertexCopy->next =  currentVertexNeighbours->next;
+                enqueue(verticesToVisit, vertexCopy);
             }
+            // walk through the adjacency list
             currentVertexNeighbours = currentVertexNeighbours->next;
         }
         

@@ -27,7 +27,7 @@ Graph* create_graph(int nv);
 void add_edge(Graph* g, int vertex1, int vertex2, float weight);
 void print_as_adjacency_list(Graph* g);
 void print_as_adjacency_matrix(Graph* g);
-void bfs(Graph* g, int initialVertex);
+void bfs(Graph* g, int initialVertexValue);
 Graph* kruskal(Graph* g);
 void free_graph(Graph* g);
 #endif
