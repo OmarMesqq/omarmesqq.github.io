@@ -7,9 +7,14 @@ categories:
 
 I was assigned a college project on [graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) and decided to share
 my implementation with the world since these are very interesting and useful data structures, and, also, because I got an A at
-it so I guess it should be good enough to go public.
+it so I guess it should be good enough to go public and to be a good start for the blog. 
 
+Do note though: my grades aren't as close to that A, and in this blogging venue, I'll certainly [commit
+many more mistakes](https://youtube.com/embed/dvKeCcxD3rQ?start=14&end=29). Feel free to [reach out](mailto:omarmsqt@gmail.com) if you spot any!
+
+---
 This is the graph we will be discussing:
+
 ![Graph](../../../visual_assets/undirected_graph.png)
 
 The image shows an undirected graph, and, as you can see, it is indeed undirected since edges (also known as links) such
@@ -154,5 +159,41 @@ the use of the previously mentioned `initialVertex` heap variable and hacky firs
 
 The refactoring led to some branching in the loop's internal (to detect if it's a first run), but I don't think it negatively impacted
 readability. I know `do {...} while()` loops aren't new in programming, but I rarely used them. Using them in this context
-exposed me a to a **new way of thinking about and solving the problem**, which is one of the guiding principles of 
+exposed me a to a **new way of thinking about and solving the problem**, which is part of 
 my [ethos](https://en.wikipedia.org/wiki/Ethos), so hooray I guess!
+
+Dequeuing from an empty queue will return a `NULL` pointer, which means the program is faced with the initial case
+of the traversal. The variable `currentVertexValue` is assigned to `initialVertexValue` (the vertex chosen by the user to start BFS from), and
+then used to obtain the adajcency list of it (`currentVertexNeighbours`).
+
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 145-152 %}
+        }
+{% endhighlight %}
+
+In order for the algorithm to properly work, the initial vertex has to be immediately marked as visited, otherwise
+when it's found during traversal it will be revisited leading to nodes being visited in unexpected order and 
+increased runtime. The subsequent vertices will be visited during the adjacency list traversal.
+
+In the `else` branch, the `currentVertex` is firstly extracted from the `qn` queue node, and `currentVertexValue`
+is obtained by reading the struct pointer. Analogous to the first case, the adjacency list is obtained through
+the global graph struct: `g->nb[currentVertexValue]`
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 153-162 %}
+{% endhighlight %}
+
+After the branching is done, the actual traversal in the vertice's adjacency list begins:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 164-175 %}
+                // allocation check and pointer assignment...
+{% include_absolute projects/graphs/graph.c, 183-187 %}
+{% endhighlight %}
+
+This is pretty much like a linked list traversal so it should run in $$O(E)$$ where $$E$$ is the number of edges in the list.
+There's also a copying step along with the `visited` array so the implementation should have $$O(V)$$ space complexity in average 
+(where $$V$$ is the amount of vertices in the graph). In spite of this, the time complexity of the algorithm is $$O(V+E)$$ since all 
+vertices are visited and all edges are explored.
+
+### Kruskal's algorithm
