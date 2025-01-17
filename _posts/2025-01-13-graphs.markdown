@@ -12,7 +12,7 @@ it so I guess it should be good enough to go public.
 This is the graph we will be discussing:
 ![Graph](../../../visual_assets/undirected_graph.png)
 
-The caption says "Undirected graph", and, as you can see, it is indeed undirected since edges (also known as links) such
+The image shows an undirected graph, and, as you can see, it is indeed undirected since edges (also known as links) such
 as $$ 8 \to 7 $$ are equivalent to $$ 7 \to 8 $$. Furthermore, you may notice that the graph is **weighted** which will be important
 in the future as we will be implementing breadth-first search and Kruskal's algorithm.
 
@@ -116,3 +116,43 @@ easier to implement in the BFS algorithm, even though you have to be extra caref
 memory and losing information.
 
 ### Breadth-first search (BFS)
+
+The BFS implementation starts with the creation of two auxiliary structures necessary for the graph traversal logic.
+A `verticesToVisit` queue which holds enqueued vertices during the traversal for the later exploration
+of their neighbours. 
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 121-138 %}
+{% endhighlight %}
+
+Notice that the `visited` array is a pointer of `int` and is allocated using `calloc`. Unlike the college canon, `malloc`,
+this API allocates a block of memory and [zero initializes all of its bytes to zero](https://en.cppreference.com/w/c/memory/calloc).
+Due to this behavior, I could leverage the initial status of zero (false) in the `visited` array as a way of saying that all
+vertices were initially unvisited, which makes sense.
+
+At the end of the day, this array is just a pointer to boolean states, so you may query
+`visited[i]` of a given vertex `i` and check its result: $$1$$ in case it has been visited, $$0$$ otherwise.
+All in all, it behaves just like the `g->nb` list of adjacency lists of the graph.
+
+The gist of the algorithm lies in a `do {...} while()` loop. The old implementation I made used a "usual" `while` loop, but it 
+required an auxiliary, heap allocated `initialVertex` variable to be enqueued and, thus, allow the loop to start.
+Once again, I do not know if I made the right decision -- if there's such thing --, but I refactored the algorithm to 
+make use of the former C construct.
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 140-146 %}
+{% include_absolute projects/graphs/graph.c, 153-154 %}
+{% include_absolute projects/graphs/graph.c, 162-162 %}
+{% include_absolute projects/graphs/graph.c, 189-189 %}
+{% endhighlight %}
+
+
+
+I found this interesting because such construct immediately enters the loop's body and *later* evaluates the condition,
+so it's like the semantics of it express that the **initial run will be different** (which it is). It also discarded
+the use of the previously mentioned `initialVertex` heap variable and hacky first-time enqueuing.
+
+The refactoring led to some branching in the loop's internal (to detect if it's a first run), but I don't think it negatively impacted
+readability. I know `do {...} while()` loops aren't new in programming, but I rarely used them. Using them in this context
+exposed me a to a **new way of thinking about and solving the problem**, which is one of the guiding principles of 
+my [ethos](https://en.wikipedia.org/wiki/Ethos), so hooray I guess!

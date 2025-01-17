@@ -151,6 +151,7 @@ void bfs(Graph* g, int initialVertexValue) {
 
             currentVertexNeighbours = g->nb[currentVertexValue];
         } else {
+            // Subsequent passes
             Neighbour* currentVertex = qn->nb;
             currentVertexValue = currentVertex->vertexValue;
 
