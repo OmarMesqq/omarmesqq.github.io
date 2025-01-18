@@ -7,12 +7,13 @@ categories:
 
 I was assigned a college project on [graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) and decided to share
 my implementation with the world since these are very interesting and useful data structures, and, also, because I got an A at
-it so I guess it should be good enough to go public and to be a good start for the blog. 
+it so I guess it should be good enough to go public and to be the blog's square one. 
 
 Do note though: my grades aren't as close to that A, and in this blogging venue, I'll certainly [commit
 many more mistakes](https://youtube.com/embed/dvKeCcxD3rQ?start=14&end=29). Feel free to [reach out](mailto:omarmsqt@gmail.com) if you spot any!
 
 ---
+<br>
 This is the graph we will be discussing:
 
 ![Graph](../../../visual_assets/undirected_graph.png)
@@ -74,7 +75,7 @@ think of new, more interesting ways of representing the graph, but I think that 
 here shouldn't be much of an issue. Also, I do not know of further optimizations people do regarding this DS:
 [it's a whole part of Computer Science](https://en.wikipedia.org/wiki/Graph_theory).
 
-The last custom type is called `Edge` which I created for use in [Kruskal's algorithm](https://en.wikipedia.org/wiki/Kruskal%27s_algorithm):
+The last custom type is called `Edge` which I created for use in Kruskal's algorithm:
 {% highlight c %}
 {% include_absolute projects/graphs/graph.h, 20-24 %}
 {% endhighlight %}
@@ -82,7 +83,7 @@ The last custom type is called `Edge` which I created for use in [Kruskal's algo
 The significant difference from this data type to `Neighbour` lies in the fact that `Edge`
 encapsulates all the necessary information for describing an edge in a graph inside its memory
 layout. The two vertices `u` and `v` along with the weight are all the information needed
-to generate a [minimum spanning tree](https://en.wikipedia.org/wiki/Minimum_spanning_tree). More on that later.
+to generate a minimum spanning tree. More on that later.
 
 Finally, the ~~public~~ exposed functions from the `graph.c` file are listed below:
 {% highlight c %}
@@ -196,4 +197,61 @@ There's also a copying step along with the `visited` array so the implementation
 (where $$V$$ is the amount of vertices in the graph). In spite of this, the time complexity of the algorithm is $$O(V+E)$$ since all 
 vertices are visited and all edges are explored.
 
-### Kruskal's algorithm
+### [Kruskal's algorithm](https://en.wikipedia.org/wiki/Kruskal%27s_algorithm)
+The desired outcome from running Kruskal's is to have a [minimum spanning tree (MST)](https://en.wikipedia.org/wiki/Minimum_spanning_tree)
+at the end of the algorithm. In essence, **a MST is a subgraph of an undirected and weighted graph 
+that connects all vertices without forming any cycles and has the minimum possible total edge weight**.
+
+As an example, MSTs can be used in network design for establishing a [topology](https://en.wikipedia.org/wiki/Network_topology) 
+which ensures all elements (vertices) are connected with the least piping cost (minimum total edge weight)!
+How's that for engineering the Internet?
+
+<p align="center">
+  <img src="../../../visual_assets/internet_map.jpg" alt="Partial map of 2005 Internet" />
+  <br>
+  <em>Partial map of Internet in 2005 by the <a href="https://www.opte.org/the-internet">OPTE project</a></em>
+  <br>
+  <em>Image extracted from Wikipedia and subject to <a href="https://creativecommons.org/licenses/by/2.5/deed.en">Creative Commons</a></em>
+</p>
+
+---
+<br>
+Kruskal is a [greedy algorithm](https://en.wikipedia.org/wiki/Greedy_algorithm), and as such, it works heuristically by picking 
+the *immediate best local* solution. What that means is that, in our case, the graph edges are sorted by ascending weights,
+and then, the ones with the minimal weight that connect two vertices and do not form a cycle are immediately added to the tree,
+without ever considering if, in the grand scheme of things, this will be global optimal solution.
+
+Given the study object of the assignment -- a relatively sparse graph -- the locally best solution should be
+good enough compared to the global one. Afterall, there are only $$14$$ edges, so the approximation
+should be a fair trade.   
+
+In case my explanation on greedy algos was too fleeting, I'll leave a helpful analogy that I came across in the
+article on [40 Key Computer Science Concepts Explained In Layman’s Terms](https://carlcheo.com/compsci):
+
+> Imagine you are going for hiking and your goal is to reach the highest peak possible. You already have the map before you start, but there are thousands of possible paths shown on the map. You are too lazy and simply don’t have the time to evaluate each of them. Screw the map! You started hiking with a simple strategy – be greedy and short-sighted. Just take paths that slope upwards the most.
+>
+> After the trip ended and your whole body is sore and tired, you look at the hiking map for the first time. Oh my god! There’s a muddy river that I should’ve crossed, instead of keep walking upwards.
+>
+> A greedy algorithm picks the best immediate choice and never reconsiders its choices.
+
+Past the theoretical discussion, let us get our hands dirty in the implementation:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 196-204 %}
+    .......
+}
+{% endhighlight %}
+
+We `malloc` a block of memory for **all** inserted edges in the graph `g->ne`. This isn't great since
+there's a chance that not each and every edge will be analyzed. I'll explain that in detail later, but for now, 
+bear with me and let us assume we will make use of all edges, so we allocate memory for all of them.
+
+Next, we traverse entirety of the graph in its $$V$$ vertices and $$E$$ edges using the adjacency lists. So this nested `for`
+loop runs in $$O(V+E)$$ linear time. 
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 210-218 %}
+{% endhighlight %}
+
+An `if` clause stores and [deduplicates](https://en.wikipedia.org/wiki/Data_deduplication) edges since we're dealing
+with an undirected graph. The conditional only stores edges $$ (u, v) $$ where $$ u < v $$. This is a matter of design, since
+picking the edge when $$u$$ is greater will also achieve deduplication, but I think that selecting the edges in ascending order
+is somehow more intuitive.
