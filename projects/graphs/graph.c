@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <limits.h>
 
 // Auxiliary functions
 static void _pretty_print_matrix(float **matrix, int tam);
@@ -217,10 +216,10 @@ Graph* kruskal(Graph* g) {
         }
     }
 
-    // Sort the edges by weight using quick sort
+    // Sort the edges by weight
     qsort(edges, g->ne, sizeof(Edge), _compare_edges);
 
-    // Initialize the Union-Find DS (DSU)
+    // Initialize the Union-Find DS
     int* parents = (int*) malloc(g->nv * sizeof(int));
     int* rank = (int*) calloc(g->nv, sizeof(int));
     if (!parents || !rank) {
@@ -248,7 +247,7 @@ Graph* kruskal(Graph* g) {
 
     /*
     Kruskal's main loop:
-    the loop containues until all edges are included in the MST
+    the loop continues until all edges are included in the MST
     OR the MST is complete, that is, it has g->nv - 1 edges
     The edges are processed in ascending order, due to previous sorting
     */

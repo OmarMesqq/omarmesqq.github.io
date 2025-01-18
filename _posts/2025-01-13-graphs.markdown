@@ -9,8 +9,9 @@ I was assigned a college project on [graphs](https://en.wikipedia.org/wiki/Graph
 my implementation with the world since these are very interesting and useful data structures, and, also, because I got an A at
 it so I guess it should be good enough to go public and to be the blog's square one. 
 
-Do note though: my grades aren't as close to that A, and in this blogging venue, I'll certainly [commit
-many more mistakes](https://youtube.com/embed/dvKeCcxD3rQ?start=14&end=29). Feel free to [reach out](mailto:omarmsqt@gmail.com) if you spot any!
+Do note though: I am simply sharing my inkling of experience in this blogging venue and I'll certainly [commit
+lots of mistakes during it](https://youtube.com/embed/dvKeCcxD3rQ?start=14&end=29). 
+Feel free to [reach out](mailto:omarmsqt@gmail.com) if you spot any!
 
 ---
 <br>
@@ -53,8 +54,12 @@ be using in `main.c`, whereas `queue.h` and `queue.c` contain the definitions an
 of a simple FIFO [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)).
 
 ### Code description
+_In this and in the following sections, I'll discuss theory and code. The code snippets
+are, for the most part, actual lines of the source files. Still, you may treat them as pseudocode
+for the sole fact that important `NULL` checks are stripped for brevity. Nonetheless, the steps
+described for the algorithms are actual code._
 
-Let us first understand the declared data types in `graph.h` used to represent the graph using a bottom-up approach: 
+Let us first understand the declared data types in `graph.h` used to represent the graph: 
 {% highlight c %}
 {% include_absolute projects/graphs/graph.h, 4-17 %}
 {% endhighlight %}
@@ -121,14 +126,15 @@ it returns the `QueueNode` in front of the queue and moves on with it. I found t
 easier to implement in the BFS algorithm, even though you have to be extra careful regarding leaking
 memory and losing information.
 
-### Breadth-first search (BFS)
+### [Breadth-first search (BFS)](https://en.wikipedia.org/wiki/Breadth-first_search)
 
 The BFS implementation starts with the creation of two auxiliary structures necessary for the graph traversal logic.
 A `verticesToVisit` queue which holds enqueued vertices during the traversal for the later exploration
 of their neighbours. 
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 121-138 %}
+{% include_absolute projects/graphs/graph.c, 120-127 %}
+{% include_absolute projects/graphs/graph.c, 132-132 %}
 {% endhighlight %}
 
 Notice that the `visited` array is a pointer of `int` and is allocated using `calloc`. Unlike the college canon, `malloc`,
@@ -146,10 +152,11 @@ Once again, I do not know if I made the right decision -- if there's such thing 
 make use of the former C construct.
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 140-146 %}
-{% include_absolute projects/graphs/graph.c, 153-154 %}
-{% include_absolute projects/graphs/graph.c, 162-162 %}
-{% include_absolute projects/graphs/graph.c, 189-189 %}
+{% include_absolute projects/graphs/graph.c, 139-142 %}
+{% include_absolute projects/graphs/graph.c, 144-145 %}
+{% include_absolute projects/graphs/graph.c, 152-153 %}
+{% include_absolute projects/graphs/graph.c, 161-161 %}
+{% include_absolute projects/graphs/graph.c, 188-188 %}
 {% endhighlight %}
 
 
@@ -169,7 +176,7 @@ then used to obtain the adajcency list of it (`currentVertexNeighbours`).
 
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 145-152 %}
+{% include_absolute projects/graphs/graph.c, 144-151 %}
         }
 {% endhighlight %}
 
@@ -182,14 +189,14 @@ is obtained by reading the struct pointer. Analogous to the first case, the adja
 the global graph struct: `g->nb[currentVertexValue]`
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 153-162 %}
+{% include_absolute projects/graphs/graph.c, 152-161 %}
 {% endhighlight %}
 
 After the branching is done, the actual traversal in the vertice's adjacency list begins:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 164-175 %}
+{% include_absolute projects/graphs/graph.c, 163-174 %}
                 // allocation check and pointer assignment...
-{% include_absolute projects/graphs/graph.c, 183-187 %}
+{% include_absolute projects/graphs/graph.c, 181-186 %}
 {% endhighlight %}
 
 This is pretty much like a linked list traversal so it should run in $$O(E)$$ where $$E$$ is the number of edges in the list.
@@ -216,7 +223,7 @@ How's that for engineering the Internet?
 
 ---
 <br>
-Kruskal is a [greedy algorithm](https://en.wikipedia.org/wiki/Greedy_algorithm), and as such, it works heuristically by picking 
+Kruskal is a [greedy algorithm](https://en.wikipedia.org/wiki/Greedy_algorithm), and as such, works heuristically by picking 
 the *immediate best local* solution. What that means is that, in our case, the graph edges are sorted by ascending weights,
 and then, the ones with the minimal weight that connect two vertices and do not form a cycle are immediately added to the tree,
 without ever considering if, in the grand scheme of things, this will be global optimal solution.
@@ -236,7 +243,7 @@ article on [40 Key Computer Science Concepts Explained In Layman’s Terms](http
 
 Past the theoretical discussion, let us get our hands dirty in the implementation:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 196-204 %}
+{% include_absolute projects/graphs/graph.c, 195-203 %}
     .......
 }
 {% endhighlight %}
@@ -248,10 +255,53 @@ bear with me and let us assume we will make use of all edges, so we allocate mem
 Next, we traverse entirety of the graph in its $$V$$ vertices and $$E$$ edges using the adjacency lists. So this nested `for`
 loop runs in $$O(V+E)$$ linear time. 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 210-218 %}
+{% include_absolute projects/graphs/graph.c, 209-217 %}
 {% endhighlight %}
 
 An `if` clause stores and [deduplicates](https://en.wikipedia.org/wiki/Data_deduplication) edges since we're dealing
 with an undirected graph. The conditional only stores edges $$ (u, v) $$ where $$ u < v $$. This is a matter of design, since
 picking the edge when $$u$$ is greater will also achieve deduplication, but I think that selecting the edges in ascending order
 is somehow more intuitive.
+
+Once the edges are collected, they have to be sorted. I used the [C library `qsort`](https://en.cppreference.com/w/c/algorithm/qsort), which,
+despite its name is not enforced nor guaranteed by the C standard to be [quicksort](https://en.wikipedia.org/wiki/Quicksort).
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 219-220 %}
+{% endhighlight %}
+
+At this point, we face one of the `static` helper functions I mentioned earlier:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 331-338 %}
+{% endhighlight %}
+
+The types and return branches are determined by `qsort`'s API. I just made the function comply to it.
+
+Up next, two crucial heap allocated structures are created. The first one is called `parents` and is responsible
+for creating a forest consisting of single node trees for every vertex in the graph.
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 222-224 %}
+{% include_absolute projects/graphs/graph.c, 233-236 %}
+{% endhighlight %}
+
+The `rank` array is a heuristic approach to each tree's height. Since it's `calloc` allocated, initially all
+trees have rank $$0$$. It will be used for updating the forest as we start connecting vertices in Kruskal's
+main loop. These two variables make up a [Union-Find data structure](https://en.wikipedia.org/wiki/Disjoint-set_data_structure).
+
+Finally, we get to the core of the matter: the `for` loop.
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 238-239 %}
+{% include_absolute projects/graphs/graph.c, 248-254 %}
+{% endhighlight %}
+
+Notice how the minimum spanning tree is of type `Graph*`. This not only makes the implementation simpler by
+reducing the quantity of custom types, but makes perfect sense since **trees are special cases of graphs**.
+
+The block comment above the loop should make the condition checking logic clear, but I'll add a note
+on the loop initialized variables. In the one hand, the variable `i` 
+indexes the `edges` array, providing access to the struct pointers `u`, `v`, and `weight`. It is also
+used for bounds checking -- `i < g->ne` -- preventing invalid memory access, and for 
+halting the algorithm after all edges are checked.
+
+On the other hand, the `includedEdges` variable keeps track of inserted edges and stops the algorithm once it's equal to
+`g->nv - 1`: [the spanning tree of a given graph with $$V$$ vertices is complete once it has $$V-1$$ edges](https://en.wikipedia.org/wiki/Minimum_spanning_tree#Possible_multiplicity).
