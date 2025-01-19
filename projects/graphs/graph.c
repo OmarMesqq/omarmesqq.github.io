@@ -353,7 +353,7 @@ static void _unionSets(int* parents, int* rank, int u, int v) {
     int rootU = _find(parents, u);
     int rootV = _find(parents, v);
 
-    // Picks the set with greatest rank ("height") in order to avoid deep and splay trees
+    // Picks the set with greatest rank as the representative
     if (rootU != rootV) {
         if (rank[rootU] > rank[rootV]) {
             parents[rootV] = rootU;

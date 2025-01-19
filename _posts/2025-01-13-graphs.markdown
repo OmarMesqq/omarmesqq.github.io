@@ -331,7 +331,7 @@ have their parent assigned the value returned by the function call.
 
 This optimization is called [path compression](https://cp-algorithms.com/data_structures/disjoint_set_union.html#path-compression-optimization)
 and makes subsequent `_find` calls faster by "flattening" the tree, making paths to the root/parent shorter!
-I love human ingenuity :)
+Human ingenuity is awesome!
 
 <p align="center">
   <img src="../../../visual_assets/path_compression.png" alt="Image showing two trees. The one on the left is unoptimized, and 
@@ -359,3 +359,16 @@ At last, it's necessary to update the Union Find structure, since $$u$$ and $$v$
 {% include_absolute projects/graphs/graph.c, 266-268 %}
 {% endhighlight %}
 
+The `_unionSets` function does $$u \cup v$$ taking the ranks of both trees in account:
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 351-367 %}
+{% endhighlight %}
+
+Inside the [defensive](https://en.wikipedia.org/wiki/Defensive_programming) if clause lies the mechanism
+by which two sets are joined. The set with the greatest rank -- recall that it's a heuristic for a tree's height --
+is selected as the root of the new $$u \cup v$$ set. This ensures that the tree doesn't grow unnecessarily since
+the smaller tree's rank won't affect the larger one's.
+
+In case both sets have the same rank, we arbitrarily pick the first set $$u$$ as the representative of the new
+set and increment its rank by one.
