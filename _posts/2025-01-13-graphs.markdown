@@ -305,3 +305,56 @@ halting the algorithm after all edges are checked.
 
 On the other hand, the `includedEdges` variable keeps track of inserted edges and stops the algorithm once it's equal to
 `g->nv - 1`: [the spanning tree of a given graph with $$V$$ vertices is complete once it has $$V-1$$ edges](https://en.wikipedia.org/wiki/Minimum_spanning_tree#Possible_multiplicity).
+
+Inside the loop, we access all information regarding the currently analyzed edge `i`:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 255-257 %}
+{% endhighlight %}
+
+For the next step, a conditional statement safeguards the crux of Kruskal's: adding the edge of two vertices 
+without forming cycles in the tree:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 259-264 %}
+{% endhighlight %}
+
+If the vertex already is the root of the tree (parent of the set) containing itself, the `_find` function returns
+its value immediately. This scenario should be more common at the start of the routine, when each vertex is in its 
+own tree.
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 340-349 %}
+{% endhighlight %}
+
+Otherwise, it leverages recursion to find the parent of a given vertex already included in the incipient MST.
+Here, something amazing happens: until the base case is reached, all the vertices deep in recursion will
+have their parent assigned the value returned by the function call.
+
+This optimization is called [path compression](https://cp-algorithms.com/data_structures/disjoint_set_union.html#path-compression-optimization)
+and makes subsequent `_find` calls faster by "flattening" the tree, making paths to the root/parent shorter!
+I love human ingenuity :)
+
+<p align="center">
+  <img src="../../../visual_assets/path_compression.png" alt="Image showing two trees. The one on the left is unoptimized, and 
+  the one on the right is flattened due to path compression." />
+  <em>Image extracted from <a href="https://cp-algorithms.com/">Algorithms for Competitive Programming</a>.</em>
+</p>
+
+This matters a lot because now we can **check if two vertices $$u$$ and $$v$$ are in the same set by simply checking the set's
+representative (parent)**, instead of having to traverse the entirety of inserted nodes.
+
+In case they are in NOT in the same set, the conditional evaluates to true:
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 264-264 %}
+{% endhighlight %}
+
+and we can include them in the MST:
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 265-265 %}
+{% endhighlight %}
+
+At last, it's necessary to update the Union Find structure, since $$u$$ and $$v$$ are now in the same set (the MST):
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 266-268 %}
+{% endhighlight %}
