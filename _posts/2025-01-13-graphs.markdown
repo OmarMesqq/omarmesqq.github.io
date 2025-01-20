@@ -6,12 +6,8 @@ categories:
 ---
 
 I was assigned a college project on [graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) and decided to share
-my implementation with the world since these are very interesting and useful data structures, and, also, because I got an A at
+my implementation with the world since these are very interesting and useful data structures, and, also, because I got a very good score at
 it so I guess it should be good enough to go public and to be the blog's square one. 
-
-Do note though: I am simply sharing my inkling of experience in this blogging venue and I'll certainly [commit
-lots of mistakes during it](https://youtube.com/embed/dvKeCcxD3rQ?start=14&end=29). 
-Feel free to [reach out](mailto:omarmsqt@gmail.com) if you spot any!
 
 ---
 <br>
@@ -29,22 +25,21 @@ as $$ 8 \to 7 $$ are equivalent to $$ 7 \to 8 $$. Furthermore, you may notice th
 in the future as we will be implementing Kruskal's algorithm.
 
 Still, before we delve into the realm of graph algorithms, we aim to visualize it first and foremost.
-In order to achieve this, clever people came up with two main ways of *describing* graphs:
+To achieve this, two main ways of *describing* graphs were developed:
 
 - [Adjacency list](https://en.wikipedia.org/wiki/Adjacency_list)
 - [Adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix)
 
 This is a very important point regarding this data structure: although graphs are usually pictured 
-like the screenshot above i.e. with cute, rounded vertices and clear weights in the edges, in 
-real life, people work with *representations* of them. I do not know why's that but I am guessing
-it's simpler to implement, and grapples the multidimensionality of this data structure fairly well.
+like the screenshot above i.e. with clear, rounded vertices and weights in the edges, in 
+real life, people work with *representations* of them.
 
 <h3 id="project-structure">
   <a href="#project-structure" style="text-decoration: none; color: blue;">Project structure</a>
 </h3>
 I coded this in C, partly because it's mandatory as per course specification, although I should mention
 that I enjoy coding in this language. The project's structure is available below and can be accessed
-by appending `projects/graphs` to my blog's root URL so you can see it all.
+by appending `projects/graphs` to the blog's root URL, so you can explore it.
 
 I wholeheartedly receive critics, suggestions, and contributions, but since I have zero expectations
 regarding anyone contributing to this project, it's not Git versioned (yet!).
@@ -64,8 +59,8 @@ of a simple FIFO [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type
 </h3>
 _In this and in the following sections, I'll discuss theory and code. The code snippets
 are, for the most part, actual lines of the source files. Still, you may treat them as pseudocode
-for the sole fact that important `NULL` checks are stripped for brevity. Nonetheless, the steps
-described for the algorithms are actual code._
+for the sole fact that important `NULL` checks are stripped for brevity. However, the steps described 
+for the algorithms represent actual code._
 
 Let us first understand the declared data types in `graph.h` used to represent the graph: 
 {% highlight c %}
@@ -117,7 +112,7 @@ of completion. Feel free to skip it, if you fancy.
 The queue will only really be used in BFS. As such, the first type `QueueNode` only needs a pointer
 to the neighbouring vertex and another one for the next node in queue.
 The `Queue` itself has members for the front and the back of the ADT, since 
-we'll be needing constant time for both `front` read and `back` write -- afterall, this where this data
+we'll be needing constant time for both `front` read and `back` write -- after all, this where this data
 structure excels.
 
 The exposed functions are:
@@ -127,7 +122,7 @@ The exposed functions are:
 
 Again, pretty usual stuff. Both `enqueue` and `dequeue` run in $$O(1)$$ time just like a standard queue.
 `is_queue_empty` evaluates the `q->front` pointer giving us information on remaining vertices in queue.
-Consequentially, we are able control the graph traversal using this auxiliary structure.
+Consequently, we can control the graph traversal using this auxiliary structure.
 
 An interesting difference in my `dequeue` implementation is that it encompasses **peeking and popping**, i.e.
 it returns the `QueueNode` in front of the queue and moves on with it. I found this approach
@@ -160,7 +155,7 @@ All in all, it behaves just like the `g->nb` list of adjacency lists of the grap
 The gist of the algorithm lies in a `do {...} while()` loop. The old implementation I made used a "usual" `while` loop, but it 
 required an auxiliary, heap allocated `initialVertex` variable to be enqueued and, thus, allow the loop to start.
 Once again, I do not know if I made the right decision -- if there's such thing --, but I refactored the algorithm to 
-make use of the former C construct.
+leverage the former C construct.
 
 {% highlight c %}
 {% include_absolute projects/graphs/graph.c, 139-142 %}
@@ -172,18 +167,18 @@ make use of the former C construct.
 
 
 
-I found this interesting because such construct immediately enters the loop's body and *later* evaluates the condition,
+I found this interesting because this construct immediately enters the loop's body and *later* evaluates the condition,
 so it's like the semantics of it express that the **initial run will be different** (which it is). It also discarded
 the use of the previously mentioned `initialVertex` heap variable and hacky first-time enqueuing.
 
 The refactoring led to some branching in the loop's internal (to detect if it's a first run), but I don't think it negatively impacted
 readability. I know `do {...} while()` loops aren't new in programming, but I rarely used them. Using them in this context
-exposed me a to a **new way of thinking about and solving the problem**, which is part of 
-my [ethos](https://en.wikipedia.org/wiki/Ethos), so hooray I guess!
+exposed me to a **new way of thinking about and solving the problem**, which is an integral part of the engineering 
+[ethos](https://en.wikipedia.org/wiki/Ethos) of continuous improvement.
 
 Dequeuing from an empty queue will return a `NULL` pointer, which means the program is faced with the initial case
 of the traversal. The variable `currentVertexValue` is assigned to `initialVertexValue` (the vertex chosen by the user to start BFS from), and
-then used to obtain the adajcency list of it (`currentVertexNeighbours`).
+then used to obtain the adjacency list of it (`currentVertexNeighbours`).
 
 
 {% highlight c %}
@@ -243,9 +238,8 @@ the *immediate best local* solution. What that means is that, in our case, the g
 and then, the ones with the minimal weight that connect two vertices and do not form a cycle are immediately added to the tree,
 without ever considering if, in the grand scheme of things, this will be global optimal solution.
 
-Given the study object of the assignment -- a relatively sparse graph -- the locally best solution should be
-good enough compared to the global one. Afterall, there are only $$14$$ edges, so the approximation
-should be a fair trade.   
+Given the relatively sparse graph in this assignment, the locally best solution should be sufficiently close to the global one. 
+After all, there are only $$14$$ edges, so the approximation should be a fair trade.   
 
 In case my explanation of greedy algorithms was too fleeting, I'll leave a helpful analogy that I came across in the
 article on [40 Key Computer Science Concepts Explained In Layman’s Terms](https://carlcheo.com/compsci):
@@ -265,7 +259,7 @@ Past the theoretical discussion, let us get our hands dirty in the implementatio
 
 We `malloc` a block of memory for **all** inserted edges in the graph `g->ne`. This isn't great since
 there's a chance that not each and every edge will be analyzed. I'll explain that in detail later, but for now, 
-bear with me and let us assume we will make use of all edges, so we allocate memory for all of them.
+let's assume we'll use all of them.
 
 Next, we traverse entirety of the graph in its $$V$$ vertices and $$E$$ edges using the adjacency lists. So this nested `for`
 loop runs in $$O(V+E)$$ linear time. 
@@ -274,7 +268,7 @@ loop runs in $$O(V+E)$$ linear time.
 {% endhighlight %}
 
 An `if` clause stores and [deduplicates](https://en.wikipedia.org/wiki/Data_deduplication) edges since we're dealing
-with an undirected graph. The conditional only stores edges $$ (u, v) $$ where $$ u < v $$. This is design matter, since
+with an undirected graph. The conditional only stores edges $$ (u, v) $$ where $$ u < v $$. This is a design matter, since
 picking the edge when $$u$$ is greater will also achieve deduplication, but I think that selecting the edges in ascending order
 is somehow more intuitive.
 
@@ -346,7 +340,7 @@ have their parent assigned the value returned by the function call.
 
 This optimization is called [path compression](https://cp-algorithms.com/data_structures/disjoint_set_union.html#path-compression-optimization)
 and makes subsequent `_find` calls faster by "flattening" the tree, making paths to the root/parent shorter!
-Human ingenuity is awesome!
+Human ingenuity is amazing!
 
 <p align="center">
   <img src="../../../visual_assets/path_compression.png" alt="Image showing two trees. The one on the left is unoptimized, and 
@@ -389,10 +383,9 @@ In case both sets have the same rank, we arbitrarily pick the first one $$u$$ as
 set and increment its rank by one.
 
 Sorting dominates the runtime of Kruskal's algorithm so the main loop I mentioned earlier shouldn't affect
-performance as much as the former step. I am not able to mathematically justify the following, as I lack
-knowledge, space, and time, but [generally speaking, Kruskal's algorithm should run in $$O(E\;log\;E)$$ time](https://en.wikipedia.org/wiki/Kruskal%27s_algorithm#Complexity).
+performance as much as the former step.
 
-At the end of the main loop, auxiliary data structures are freed and the newly discovered MST is returned to the caller:
+At the end of the main loop, auxiliary data structures are freed and the MST is returned to the caller:
 {% highlight c %}
 {% include_absolute projects/graphs/graph.c, 272-276 %}
 {% endhighlight %}
@@ -502,12 +495,19 @@ Spanning tree as adjacency matrix:
   <a href="#wrapping-up" style="text-decoration: none; color: blue;">Wrapping up</a>
 </h3>
 First of all, if you reached this far I could somehow have your attention for a few minutes, so thank you!
-Originally, the purpose of this post was to reinforce my knowledge and applied work on graphs and disjoint sets,
+
+I ran `time` and `perf` several times and reviewed the code thoroughly and can tell that
+this project [isn't perfect](https://youtube.com/embed/dvKeCcxD3rQ?start=14&end=29). There are lots of potential improvements such as minimizing
+system/kernel time by better placing allocations and releases, using memory pools etc.
+Refactoring the code for higher testability and [cohesion](https://en.wikipedia.org/wiki/Cohesion_(computer_science)) is an 
+interesting challenge as well. Nonetheless, I must draw the line somewhere.
+
+Originally, the purpose of this post was to reinforce my inkling of experience on graphs and disjoint sets,
 as my memory can get [brittle over time](https://en.wikipedia.org/wiki/Forgetting_curve).
+However, as I wrote the article, I realized it can be the commence of a fruitful, long-lasting
+blogging journey (hopefully). I also managed to redefine the purpose of it: to **share knowledge with
+other people and the world**. This matters a lot to me. So, if this reading
+meant something for you, please [let me know](mailto:omarmsqt@gmail.com).
 
-However, as I wrote the article, I realized it can be the commence of an interesting, fruitful, and long-lasting
-blogging journey (hopefully). I also managed to resignify the true prupose of it: to **share knowledge with
-other people and the world**. This matters a lot to me. So, once again, I am asking for [feedback](mailto:omarmsqt@gmail.com) 
-on my writing: this wasn't supposed to teach you everything on graphs, disjoint sets, and Kruskal's. 
-
+This wasn't supposed to teach you everything on graphs, disjoint sets, and Kruskal's.
 Rather, I hope I made your **brain scratch a little with the stuff I narrated**.
