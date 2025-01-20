@@ -7,6 +7,9 @@
 
 int main() {
     Graph* g = create_graph(MAX_GRAPH_SIZE);
+    if (!g) {
+        return -1;
+    }
 
     // 14 edges in the graph
     add_edge(g, 0, 1, 4.0);
@@ -35,6 +38,10 @@ int main() {
     bfs(g, 0);
 
     Graph* mst = kruskal(g);
+    if (!mst) {
+        return -1;
+    }
+    
     printf("Spanning tree as adjacency list:\n");
     print_as_adjacency_list(mst);
 
