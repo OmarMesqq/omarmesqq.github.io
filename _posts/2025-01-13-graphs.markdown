@@ -502,3 +502,12 @@ Spanning tree as adjacency matrix:
   <a href="#wrapping-up" style="text-decoration: none; color: blue;">Wrapping up</a>
 </h3>
 First of all, if you reached this far I could somehow have your attention for a few minutes, so thank you!
+Originally, the purpose of this post was to reinforce my knowledge and applied work on graphs and disjoint sets,
+as my memory can get [brittle over time](https://en.wikipedia.org/wiki/Forgetting_curve).
+
+However, as I wrote the article, I realized it can be the commence of an interesting, fruitful, and long-lasting
+blogging journey (hopefully). I also managed to resignify the true prupose of it: to **share knowledge with
+other people and the world**. This matters a lot to me. So, once again, I am asking for [feedback](mailto:omarmsqt@gmail.com) 
+on my writing: this wasn't supposed to teach you everything on graphs, disjoint sets, and Kruskal's. 
+
+Rather, I hope I made your **brain scratch a little with the stuff I narrated**.
