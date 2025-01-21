@@ -1,0 +1,513 @@
+---
+layout: post
+title:  "Graphs"
+date:   2025-01-13 14:56:36 -0300
+categories:
+---
+
+I was assigned a college project on [graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) and decided to share
+my implementation with the world since these are very interesting and useful data structures, and, also, because I got a very good score at
+it so I guess it should be good enough to go public and to be the blog's square one. 
+
+---
+<br>
+This is the graph we will be discussing:
+
+<div id="discussed-graph">
+  <p>
+    <img src="../../../visual_assets/undirected_graph.png" alt="Image of the graph of my assignment.
+    We will talk about it." />
+  </p>
+</div>
+
+The image shows an undirected graph since edges (also known as links) such
+as $$ 8 \to 7 $$ are equivalent to $$ 7 \to 8 $$. Furthermore, you may notice that the graph is **weighted** which will be important
+in the future as we will be implementing Kruskal's algorithm.
+
+Still, before we delve into the realm of graph algorithms, we aim to visualize it first and foremost.
+To achieve this, two main ways of *describing* graphs were developed:
+
+- [Adjacency list](https://en.wikipedia.org/wiki/Adjacency_list)
+- [Adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix)
+
+This is a very important point regarding this data structure: although graphs are usually pictured 
+like the screenshot above i.e. with clear, rounded vertices and weights in the edges, in 
+real life, people work with *representations* of them.
+
+<h3 id="project-structure">
+  <a href="#project-structure" style="text-decoration: none; color: blue;">Project structure</a>
+</h3>
+I coded this in C, partly because it's mandatory as per course specification, although I should mention
+that I enjoy coding in this language. The project's structure is available below and can be accessed
+by appending `projects/graphs` to the blog's root URL, so you can explore it.
+
+I wholeheartedly receive critics, suggestions, and contributions, but since I have zero expectations
+regarding anyone contributing to this project, it's not Git versioned (yet!).
+
+- [graph.c](../../../projects/graphs/graph.c)
+- [graph.h](../../../projects/graphs/graph.h)
+- [main.c](../../../projects/graphs/main.c)
+- [queue.c](../../../projects/graphs/queue.c)
+- [queue.h](../../../projects/graphs/queue.h)
+
+The first two `graph.h` and `graph.c` files correspond to definitions and implementations of the graph API which we will
+be using in `main.c`, whereas `queue.h` and `queue.c` contain the definitions and implementations
+of a simple FIFO [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)).
+
+<h3 id="code-description">
+  <a href="#code-description" style="text-decoration: none; color: blue;">Code description</a>
+</h3>
+_In this and in the following sections, I'll discuss theory and code. The code snippets
+are, for the most part, actual lines of the source files. Still, you may treat them as pseudocode
+for the sole fact that important `NULL` checks are stripped for brevity. However, the steps described 
+for the algorithms represent actual code._
+
+Let us first understand the declared data types in `graph.h` used to represent the graph: 
+{% highlight c %}
+{% include_absolute projects/graphs/graph.h, 4-17 %}
+{% endhighlight %}
+
+
+The `Neighbour` struct represents an adjacency list of an arbitrary vertex `i` -- showing
+the `vertexValue` of the neighbouring node, the `weight` of its edge and a pointer to the `next` possible neighbouring
+node of `i`. You can keep traversing this linked list until you hit the case in which `next` is `NULL`, indicating
+that there are no more neighbours of `i` left.
+
+The `Graph` type includes two simple integer counters that track the *maximum* number of vertices `nv` 
+-- read-only, passed during initialization -- and the number of edges `ne` that grows as these are included in the DS.
+The `Neighbour** nb` has the actual graph representation as a list of adjacency lists: you get the neighbours of
+a given vertex `i` by reading `nb[i]` in linear time.
+
+I should say, though, that the `graph.h` was supplied as part of the assignment and, thus, I couldn't really
+think of new, more interesting ways of representing the graph, but I think that having $$ O(n) $$ time complexity
+here shouldn't be much of an issue. Also, I do not know of further optimizations people do regarding this DS:
+[it's a whole part of Computer Science](https://en.wikipedia.org/wiki/Graph_theory).
+
+The last custom type is called `Edge` which I created for use in Kruskal's algorithm:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.h, 20-24 %}
+{% endhighlight %}
+
+The significant difference from this data type to `Neighbour` lies in the fact that `Edge`
+encapsulates all the necessary information for describing an edge in a graph inside its memory
+layout. The two vertices `u` and `v` along with the weight are all the information needed
+to generate a minimum spanning tree. More on that later.
+
+Finally, the ~~public~~ exposed functions from the `graph.c` file are listed below:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.h, 26-32 %}
+{% endhighlight %}
+
+I won't blab about all these functions since some are trivial to understand and quite standard from a C programming perspective.
+This post focuses on `bfs`, `kruskal`, and some `static` helper functions declared in the source file which are crucial
+for the latter.
+
+Still, before we dive deep into breadth-first search and Kruskal's, I'll unfurl the queue implementation for a matter
+of completion. Feel free to skip it, if you fancy.
+
+{% highlight c %}
+{% include_absolute projects/graphs/queue.h, 4-17 %}
+{% endhighlight %}
+
+The queue will only really be used in BFS. As such, the first type `QueueNode` only needs a pointer
+to the neighbouring vertex and another one for the next node in queue.
+The `Queue` itself has members for the front and the back of the ADT, since 
+we'll be needing constant time for both `front` read and `back` write -- after all, this where this data
+structure excels.
+
+The exposed functions are:
+{% highlight c %}
+{% include_absolute projects/graphs/queue.h, 20-24 %}
+{% endhighlight %}
+
+Again, pretty usual stuff. Both `enqueue` and `dequeue` run in $$O(1)$$ time just like a standard queue.
+`is_queue_empty` evaluates the `q->front` pointer giving us information on remaining vertices in queue.
+Consequently, we can control the graph traversal using this auxiliary structure.
+
+An interesting difference in my `dequeue` implementation is that it encompasses **peeking and popping**, i.e.
+it returns the `QueueNode` in front of the queue and moves on with it. I found this approach
+easier to implement in the BFS algorithm, even though you have to be extra careful regarding leaking
+memory and losing information.
+
+
+<h3 id="breadth-first-search">
+  <a href="#breadth-first-search" style="text-decoration: none; color: blue;">Breadth-first search (BFS)</a>
+</h3>
+The [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) implementation starts with the creation of two auxiliary structures 
+necessary for the graph traversal logic.
+A `verticesToVisit` queue which holds enqueued vertices during the traversal for the later exploration
+of their neighbours. 
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 120-127 %}
+{% include_absolute projects/graphs/graph.c, 132-132 %}
+{% endhighlight %}
+
+Notice that the `visited` array is a pointer of `int` and is allocated using `calloc`. Unlike the college canon, `malloc`,
+this function allocates a block of memory and [zero initializes all of its bytes to zero](https://en.cppreference.com/w/c/memory/calloc).
+Due to this behavior, I could leverage the initial status of zero (false) in the `visited` array as a way of saying that all
+vertices were initially unvisited, which makes sense.
+
+At the end of the day, this array is just a pointer to boolean states, so you may query
+`visited[i]` of a given vertex `i` and check its result: $$1$$ in case it has been visited, $$0$$ otherwise.
+All in all, it behaves just like the `g->nb` list of adjacency lists of the graph.
+
+The gist of the algorithm lies in a `do {...} while()` loop. The old implementation I made used a "usual" `while` loop, but it 
+required an auxiliary, heap allocated `initialVertex` variable to be enqueued and, thus, allow the loop to start.
+Once again, I do not know if I made the right decision -- if there's such thing --, but I refactored the algorithm to 
+leverage the former C construct.
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 139-142 %}
+{% include_absolute projects/graphs/graph.c, 144-145 %}
+{% include_absolute projects/graphs/graph.c, 152-153 %}
+{% include_absolute projects/graphs/graph.c, 161-161 %}
+{% include_absolute projects/graphs/graph.c, 188-188 %}
+{% endhighlight %}
+
+
+
+I found this interesting because this construct immediately enters the loop's body and *later* evaluates the condition,
+so it's like the semantics of it express that the **initial run will be different** (which it is). It also discarded
+the use of the previously mentioned `initialVertex` heap variable and hacky first-time enqueuing.
+
+The refactoring led to some branching in the loop's internal (to detect if it's a first run), but I don't think it negatively impacted
+readability. I know `do {...} while()` loops aren't new in programming, but I rarely used them. Using them in this context
+exposed me to a **new way of thinking about and solving the problem**, which is an integral part of the engineering 
+[ethos](https://en.wikipedia.org/wiki/Ethos) of continuous improvement.
+
+Dequeuing from an empty queue will return a `NULL` pointer, which means the program is faced with the initial case
+of the traversal. The variable `currentVertexValue` is assigned to `initialVertexValue` (the vertex chosen by the user to start BFS from), and
+then used to obtain the adjacency list of it (`currentVertexNeighbours`).
+
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 144-151 %}
+        }
+{% endhighlight %}
+
+In order for the algorithm to properly work, the initial vertex has to be immediately marked as visited, otherwise
+when it's found during traversal it will be revisited leading to nodes being visited in unexpected order and 
+increased runtime. The subsequent vertices will be visited during the adjacency list traversal.
+
+In the `else` branch, the `currentVertex` is firstly extracted from the `qn` queue node, and `currentVertexValue`
+is obtained by reading the struct pointer. Analogous to the first case, the adjacency list is obtained through
+the global graph struct: `g->nb[currentVertexValue]`
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 152-161 %}
+{% endhighlight %}
+
+After the branching is done, the actual traversal in the vertice's adjacency list begins:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 163-174 %}
+                // allocation check and pointer assignment...
+{% include_absolute projects/graphs/graph.c, 182-186 %}
+{% endhighlight %}
+
+This is pretty much like a linked list traversal so it should run in $$O(E)$$ where $$E$$ is the number of edges in the list.
+There's also a copying step along with the `visited` array so the implementation should have $$O(V)$$ space complexity in average 
+(where $$V$$ is the amount of vertices in the graph). In spite of this, the time complexity of the algorithm is $$O(V+E)$$ since all 
+vertices are visited and all edges are explored.
+
+
+<h3 id="kruskals-algorithm">
+  <a href="#kruskals-algorithm" style="text-decoration: none; color: blue;">Kruskal's algorithm</a>
+</h3>
+The desired outcome from running [Kruskal's](https://en.wikipedia.org/wiki/Kruskal%27s_algorithm) is to have a 
+[minimum spanning tree (MST)](https://en.wikipedia.org/wiki/Minimum_spanning_tree)
+at the end of the algorithm. In essence, **a MST is a subgraph of an undirected and weighted graph 
+that connects all vertices without forming any cycles and has the minimum possible total edge weight**.
+
+As an example, MSTs can be used in network design for establishing a [topology](https://en.wikipedia.org/wiki/Network_topology) 
+which ensures all elements (vertices) are connected with the least piping cost (minimum total edge weight)!
+How's that for engineering the Internet?
+
+<p align="center">
+  <img src="../../../visual_assets/internet_map.jpg" alt="Partial map of 2005 Internet" />
+  <br>
+  <em>Partial map of Internet in 2005 by the <a href="https://www.opte.org/the-internet">OPTE project</a></em>
+  <br>
+  <em>Image extracted from Wikipedia and subject to <a href="https://creativecommons.org/licenses/by/2.5/deed.en">Creative Commons</a></em>
+</p>
+
+---
+<br>
+Kruskal is a [greedy algorithm](https://en.wikipedia.org/wiki/Greedy_algorithm), and as such, works heuristically by picking 
+the *immediate best local* solution. What that means is that, in our case, the graph edges are sorted by ascending weights,
+and then, the ones with the minimal weight that connect two vertices and do not form a cycle are immediately added to the tree,
+without ever considering if, in the grand scheme of things, this will be global optimal solution.
+
+Given the relatively sparse graph in this assignment, the locally best solution should be sufficiently close to the global one. 
+After all, there are only $$14$$ edges, so the approximation should be a fair trade.   
+
+In case my explanation of greedy algorithms was too fleeting, I'll leave a helpful analogy that I came across in the
+article on [40 Key Computer Science Concepts Explained In Layman’s Terms](https://carlcheo.com/compsci):
+
+> Imagine you are going for hiking and your goal is to reach the highest peak possible. You already have the map before you start, but there are thousands of possible paths shown on the map. You are too lazy and simply don’t have the time to evaluate each of them. Screw the map! You started hiking with a simple strategy – be greedy and short-sighted. Just take paths that slope upwards the most.
+>
+> After the trip ended and your whole body is sore and tired, you look at the hiking map for the first time. Oh my god! There’s a muddy river that I should’ve crossed, instead of keep walking upwards.
+>
+> A greedy algorithm picks the best immediate choice and never reconsiders its choices.
+
+Past the theoretical discussion, let us get our hands dirty in the implementation:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 195-203 %}
+    .......
+}
+{% endhighlight %}
+
+We `malloc` a block of memory for **all** inserted edges in the graph `g->ne`. This isn't great since
+there's a chance that not each and every edge will be analyzed. I'll explain that in detail later, but for now, 
+let's assume we'll use all of them.
+
+Next, we traverse entirety of the graph in its $$V$$ vertices and $$E$$ edges using the adjacency lists. So this nested `for`
+loop runs in $$O(V+E)$$ linear time. 
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 209-217 %}
+{% endhighlight %}
+
+An `if` clause stores and [deduplicates](https://en.wikipedia.org/wiki/Data_deduplication) edges since we're dealing
+with an undirected graph. The conditional only stores edges $$ (u, v) $$ where $$ u < v $$. This is a design matter, since
+picking the edge when $$u$$ is greater will also achieve deduplication, but I think that selecting the edges in ascending order
+is somehow more intuitive.
+
+Once the edges are collected, they have to be sorted. I used the [C library `qsort`](https://en.cppreference.com/w/c/algorithm/qsort), which,
+despite its name is not enforced nor guaranteed by the C standard to be [quicksort](https://en.wikipedia.org/wiki/Quicksort).
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 219-220 %}
+{% endhighlight %}
+
+At this point, we face one of the `static` helper functions I mentioned earlier:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 331-338 %}
+{% endhighlight %}
+
+The argument types and return branches are determined by `qsort`'s API. I just made the function comply to it.
+
+Up next, two crucial heap allocated structures are created. The first one is called `parents` and is responsible
+for creating a forest consisting of single node trees for every vertex in the graph.
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 222-224 %}
+{% include_absolute projects/graphs/graph.c, 233-236 %}
+{% endhighlight %}
+
+The `rank` array is a heuristic approach to each tree's height. Since it's `calloc` allocated, initially all
+trees have rank $$0$$. It will be used for updating the forest as we start connecting vertices in Kruskal's
+main loop. These two variables make up a [Union-Find data structure](https://en.wikipedia.org/wiki/Disjoint-set_data_structure).
+
+Finally, we get to the core of the matter: the `for` loop.
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 238-239 %}
+{% include_absolute projects/graphs/graph.c, 248-254 %}
+{% endhighlight %}
+
+Notice how the minimum spanning tree is of type `Graph*`. This not only makes the implementation simpler by
+reducing the quantity of custom types, but makes perfect sense since **trees are special cases of graphs**.
+
+The block comment above the loop should make the condition checking logic clear, but I'll add a note
+on the loop initialized variables. In the one hand, the variable `i` 
+indexes the `edges` array, providing access to the struct pointers `u`, `v`, and `weight`. It is also
+used for bounds checking (`i < g->ne`) preventing invalid memory access, and for 
+halting the algorithm after all edges are checked.
+
+On the other hand, the `includedEdges` variable keeps track of inserted edges and stops the algorithm once it's equal to
+`g->nv - 1`: [the spanning tree of a given graph with $$V$$ vertices is complete once it has $$V-1$$ edges](https://en.wikipedia.org/wiki/Minimum_spanning_tree#Possible_multiplicity).
+
+Inside the loop, we access all information regarding the currently analyzed edge `i`:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 255-257 %}
+{% endhighlight %}
+
+For the next step, a conditional statement safeguards the crux of Kruskal's: adding the edge of two vertices 
+without forming cycles in the tree:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 259-264 %}
+{% endhighlight %}
+
+If the vertex already is the root of the tree (parent of the set) containing itself, the `_find` function returns
+its value immediately. This scenario should be more common at the start of the routine, when each vertex is in its 
+own tree.
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 340-349 %}
+{% endhighlight %}
+
+Otherwise, it leverages recursion to find the parent of a given vertex already included in the incipient MST.
+Here, something amazing happens: until the base case is reached, all the vertices deep in recursion will
+have their parent assigned the value returned by the function call.
+
+This optimization is called [path compression](https://cp-algorithms.com/data_structures/disjoint_set_union.html#path-compression-optimization)
+and makes subsequent `_find` calls faster by "flattening" the tree, making paths to the root/parent shorter!
+Human ingenuity is amazing!
+
+<p align="center">
+  <img src="../../../visual_assets/path_compression.png" alt="Image showing two trees. The one on the left is unoptimized, and 
+  the one on the right is flattened due to path compression." />
+  <em>Image extracted from <a href="https://cp-algorithms.com/">Algorithms for Competitive Programming</a>.</em>
+</p>
+
+This matters a lot because now we can **check if two vertices $$u$$ and $$v$$ are in the same set by simply checking the set's
+representative (parent)**, instead of having to traverse the entirety of inserted nodes.
+
+In case they are in NOT in the same set, the conditional evaluates to true:
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 264-264 %}
+{% endhighlight %}
+
+and we can include them in the MST:
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 265-265 %}
+{% endhighlight %}
+
+At last, it's necessary to update the Union Find structure, since $$u$$ and $$v$$ are now in the same set (the MST):
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 266-268 %}
+{% endhighlight %}
+
+The `_unionSets` function does $$u \cup v$$ taking the ranks of both trees in account:
+
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 351-367 %}
+{% endhighlight %}
+
+Inside the [defensive](https://en.wikipedia.org/wiki/Defensive_programming) if clause lies the mechanism
+by which two sets are joined. The set with the greatest rank -- recall that it's a heuristic for a tree's height --
+is selected as the root of the new $$u \cup v$$ set. This ensures that the tree doesn't grow unnecessarily since
+the smaller tree's rank won't affect the larger one's.
+
+In case both sets have the same rank, we arbitrarily pick the first one $$u$$ as the representative of the new
+set and increment its rank by one.
+
+Sorting dominates the runtime of Kruskal's algorithm so the main loop I mentioned earlier shouldn't affect
+performance as much as the former step.
+
+At the end of the main loop, auxiliary data structures are freed and the MST is returned to the caller:
+{% highlight c %}
+{% include_absolute projects/graphs/graph.c, 272-276 %}
+{% endhighlight %}
+
+
+<h3 id="usage-example">
+  <a href="#usage-example" style="text-decoration: none; color: blue;">Usage example</a>
+</h3>
+
+Now that we've covered some properties and algorithms of graphs, we shall put our discussion in practice
+by analyzing `main.c`. I made this assignment from a top down perspective using [TDD](https://en.wikipedia.org/wiki/Test-driven_development),
+so I'll first list what the binary is expected to achieve, and later show its source.
+
+1. Create the graph itself (as we've seen, we'll create a representation of it)
+2. Add the edges that make up the [graph in the assignment](#discussed-graph)
+3. Pretty print the graph to `stdout` as an adjacency list and as an adjacency matrix
+4. Print the visited vertices in BFS order
+5. Using Kruskal's algorithm, obtain a minimum spanning tree (MST)
+6. Pretty print the MST to `stdout` as an adjacency list and as an adjacency matrix
+7. Correctly manage memory while doing all of that (so no segfaults, leaks, etc)
+
+
+All of them are clearly addressed in the binaries entrypoint:
+{% highlight c %}
+{% include_absolute projects/graphs/main.c, 1-55 %}
+{% endhighlight %}
+
+Since all the $$14$$ edges **have** to be inserted, I used an `assert` call there.
+Don't do this for production code though, as this, [under usual circumstances, abnormally terminates your program](https://en.cppreference.com/w/c/program/abort).
+
+To ensure that number **7** (correctly managing memory) is true, I used [Valgrind](https://valgrind.org/docs/manual/tech-docs.html):
+{% highlight bash %}
+gcc -g -Wall -Wextra main.c graph.c queue.c -o graphs
+valgrind -s --track-origins=yes --leak-check=full ./graphs
+{% endhighlight %}
+
+Thankfully, we indeed get:
+```
+==52804== HEAP SUMMARY:
+==52804==     in use at exit: 0 bytes in 0 blocks
+==52804==   total heap usage: 132 allocs, 132 frees, 10,720 bytes allocated
+==52804== 
+==52804== All heap blocks were freed -- no leaks are possible
+==52804== 
+==52804== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+The program's standard output:
+```
+./graphs
+Graph as adjacency list:
+0: -> 8 (weight: 8.00) -> 1 (weight: 4.00) 
+1: -> 3 (weight: 8.00) -> 8 (weight: 11.00) -> 0 (weight: 4.00) 
+3: -> 6 (weight: 4.00) -> 4 (weight: 7.00) -> 9 (weight: 2.00) -> 1 (weight: 8.00) 
+4: -> 5 (weight: 9.00) -> 6 (weight: 14.00) -> 3 (weight: 7.00) 
+5: -> 6 (weight: 10.00) -> 4 (weight: 9.00) 
+6: -> 7 (weight: 2.00) -> 5 (weight: 10.00) -> 4 (weight: 14.00) -> 3 (weight: 4.00) 
+7: -> 6 (weight: 2.00) -> 9 (weight: 6.00) -> 8 (weight: 1.00) 
+8: -> 7 (weight: 1.00) -> 9 (weight: 7.00) -> 1 (weight: 11.00) -> 0 (weight: 8.00) 
+9: -> 7 (weight: 6.00) -> 8 (weight: 7.00) -> 3 (weight: 2.00) 
+Graph as adjacency matrix:
+        0     1     3     4     5     6     7     8     9
+  0     0  4.00     0     0     0     0     0  8.00     0
+  1  4.00     0  8.00     0     0     0     0 11.00     0
+  3     0  8.00     0  7.00     0  4.00     0     0  2.00
+  4     0     0  7.00     0  9.00 14.00     0     0     0
+  5     0     0     0  9.00     0 10.00     0     0     0
+  6     0     0  4.00 14.00 10.00     0  2.00     0     0
+  7     0     0     0     0     0  2.00     0  1.00  6.00
+  8  8.00 11.00     0     0     0     0  1.00     0  7.00
+  9     0     0  2.00     0     0     0  6.00  7.00     0
+
+Visiting 0
+Visiting 8
+Visiting 1
+Visiting 7
+Visiting 9
+Visiting 3
+Visiting 6
+Visiting 4
+Visiting 5
+Spanning tree as adjacency list:
+0: -> 8 (weight: 8.00) -> 1 (weight: 4.00) 
+1: -> 0 (weight: 4.00) 
+3: -> 4 (weight: 7.00) -> 6 (weight: 4.00) -> 9 (weight: 2.00) 
+4: -> 5 (weight: 9.00) -> 3 (weight: 7.00) 
+5: -> 4 (weight: 9.00) 
+6: -> 3 (weight: 4.00) -> 7 (weight: 2.00) 
+7: -> 6 (weight: 2.00) -> 8 (weight: 1.00) 
+8: -> 0 (weight: 8.00) -> 7 (weight: 1.00) 
+9: -> 3 (weight: 2.00) 
+
+Spanning tree as adjacency matrix:
+        0     1     3     4     5     6     7     8     9
+  0     0  4.00     0     0     0     0     0  8.00     0
+  1  4.00     0     0     0     0     0     0     0     0
+  3     0     0     0  7.00     0  4.00     0     0  2.00
+  4     0     0  7.00     0  9.00     0     0     0     0
+  5     0     0     0  9.00     0     0     0     0     0
+  6     0     0  4.00     0     0     0  2.00     0     0
+  7     0     0     0     0     0  2.00     0  1.00     0
+  8  8.00     0     0     0     0     0  1.00     0     0
+  9     0     0  2.00     0     0     0     0     0     0
+```
+
+<h3 id="wrapping-up">
+  <a href="#wrapping-up" style="text-decoration: none; color: blue;">Wrapping up</a>
+</h3>
+First of all, if you reached this far I could somehow have your attention for a few minutes, so thank you!
+
+I ran `time` and `perf` several times and reviewed the code thoroughly and can tell that
+this project [isn't perfect](https://youtube.com/embed/dvKeCcxD3rQ?start=14&end=29). There are lots of potential improvements such as minimizing
+system/kernel time by better placing allocations and releases, using memory pools etc.
+Refactoring the code for higher testability and [cohesion](https://en.wikipedia.org/wiki/Cohesion_(computer_science)) is an 
+interesting challenge as well. Nonetheless, I must draw the line somewhere.
+
+Originally, the purpose of this post was to reinforce my inkling of experience on graphs and disjoint sets,
+as my memory can get [brittle over time](https://en.wikipedia.org/wiki/Forgetting_curve).
+However, as I wrote the article, I realized it can be the commence of a fruitful, long-lasting
+blogging journey (hopefully). I also managed to redefine the purpose of it: to **share knowledge with
+other people and the world**. This matters a lot to me. So, if this reading
+meant something for you, please [let me know](mailto:omarmsqt@gmail.com).
+
+This wasn't supposed to teach you everything on graphs, disjoint sets, and Kruskal's.
+Rather, I hope I made your **brain scratch a little with the stuff I narrated**.
