@@ -38,11 +38,10 @@ real life, people work with *representations* of them.
   <a href="#project-structure" style="text-decoration: none; color: blue;">Project structure</a>
 </h3>
 I coded this in C, partly because it's mandatory as per course specification, although I should mention
-that I enjoy coding in this language. The project's structure is available below and can be accessed
-by appending `projects/graphs` to the blog's root URL, so you can explore it.
-
-I wholeheartedly receive critics, suggestions, and contributions, but since I have zero expectations
-regarding anyone contributing to this project, it's not Git versioned (yet!).
+that I enjoy coding in this language. Since I have no expectations
+regarding anyone contributing to this project, I didn't create a repository for it.
+Instead, I included it in this blog's repo. You can take a look at the individual files below
+or access the project's root [here](https://github.com/OmarMesqq/omarmesqq.github.io/tree/main/projects/graphs).
 
 - [graph.c](../../../projects/graphs/graph.c)
 - [graph.h](../../../projects/graphs/graph.h)
@@ -93,7 +92,7 @@ encapsulates all the necessary information for describing an edge in a graph ins
 layout. The two vertices `u` and `v` along with the weight are all the information needed
 to generate a minimum spanning tree. More on that later.
 
-Finally, the ~~public~~ exposed functions from the `graph.c` file are listed below:
+The functions exposed by `graph.h` are listed below:
 {% highlight c %}
 {% include_absolute projects/graphs/graph.h, 26-32 %}
 {% endhighlight %}
@@ -105,6 +104,7 @@ for the latter.
 Still, before we dive deep into breadth-first search and Kruskal's, I'll unfurl the queue implementation for a matter
 of completion. Feel free to skip it, if you fancy.
 
+`queue.h`:
 {% highlight c %}
 {% include_absolute projects/graphs/queue.h, 4-17 %}
 {% endhighlight %}
@@ -408,7 +408,7 @@ so I'll first list what the binary is expected to achieve, and later show its so
 7. Correctly manage memory while doing all of that (so no segfaults, leaks, etc)
 
 
-All of them are clearly addressed in the binaries entrypoint:
+Most of them are clearly addressed in the binaries entrypoint (`main.c`):
 {% highlight c %}
 {% include_absolute projects/graphs/main.c, 1-55 %}
 {% endhighlight %}
