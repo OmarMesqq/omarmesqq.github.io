@@ -6,12 +6,12 @@ categories:
 ---
 
 I was assigned a college project on [graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) and decided to share
-my implementation with the world since these are very interesting and useful data structures, and, also, because I got a very good score at
+my implementation with the world since these are very interesting and useful data structures. Also, I got a great score at
 it so I guess it should be good enough to go public and to be the blog's square one. 
 
 ---
 <br>
-This is the graph we will be discussing:
+Below is a picture of the graph in my assignment:
 
 <div id="discussed-graph">
   <p>
@@ -20,19 +20,19 @@ This is the graph we will be discussing:
   </p>
 </div>
 
-The image shows an undirected graph since edges (also known as links) such
-as $$ 8 \to 7 $$ are equivalent to $$ 7 \to 8 $$. Furthermore, you may notice that the graph is **weighted** which will be important
-in the future as we will be implementing Kruskal's algorithm.
+The image shows a graph that is both **undirected** -- since edges (also known as links) such
+as $$ 8 \to 7 $$ are equivalent to $$ 7 \to 8 $$ -- and **weighted**, as each edge is assigned 
+a value that typically represents the cost, distance, or strength of the connection between two vertices (or nodes). 
 
-Still, before we delve into the realm of graph algorithms, we aim to visualize it first and foremost.
-To achieve this, two main ways of *describing* graphs were developed:
+Although these data structures are usually pictured like the screenshot above i.e. with clear, 
+rounded vertices and weights, in real life, people work with *representations* of graphs.
+To achieve this, two main ways of *describing* them were developed:
 
-- [Adjacency list](https://en.wikipedia.org/wiki/Adjacency_list)
-- [Adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix)
+1. [Adjacency list](https://en.wikipedia.org/wiki/Adjacency_list)
+2. [Adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix)
 
-This is a very important point regarding this data structure: although graphs are usually pictured 
-like the screenshot above i.e. with clear, rounded vertices and weights in the edges, in 
-real life, people work with *representations* of them.
+Both of these representations will be explored in code, but, for this article,
+I'll treat the graph as an adjacency list. 
 
 <h3 id="project-structure">
   <a href="#project-structure" style="text-decoration: none; color: blue;">Project structure</a>
@@ -43,29 +43,29 @@ regarding anyone contributing to this project, I didn't create a repository for 
 Instead, I included it in this blog's repo. You can take a look at the individual files below
 or access the project's root [here](https://github.com/OmarMesqq/omarmesqq.github.io/tree/main/projects/graphs).
 
-- [graph.c](../../../projects/graphs/graph.c)
 - [graph.h](../../../projects/graphs/graph.h)
+- [graph.c](../../../projects/graphs/graph.c)
 - [main.c](../../../projects/graphs/main.c)
-- [queue.c](../../../projects/graphs/queue.c)
 - [queue.h](../../../projects/graphs/queue.h)
+- [queue.c](../../../projects/graphs/queue.c)
 
-The first two `graph.h` and `graph.c` files correspond to definitions and implementations of the graph API which we will
-be using in `main.c`, whereas `queue.h` and `queue.c` contain the definitions and implementations
-of a simple FIFO [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)).
+The first two `graph.h` and `graph.c` files correspond to declarations and definitions of the graph API which will
+be used for [testing](https://en.wikipedia.org/wiki/Test-driven_development) in `main.c`, 
+whereas `queue.h` and `queue.c` contain the declarations and definitions of 
+a simple [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) used as an auxiliary data structure in
+the graph algorithms.
 
 <h3 id="code-description">
   <a href="#code-description" style="text-decoration: none; color: blue;">Code description</a>
 </h3>
-_In this and in the following sections, I'll discuss theory and code. The code snippets
-are, for the most part, actual lines of the source files. Still, you may treat them as pseudocode
-for the sole fact that important `NULL` checks are stripped for brevity. However, the steps described 
-for the algorithms represent actual code._
+_In this and in the following sections, I'll discuss theory and code. You may treat the code snippets 
+as pseudocode for the sole fact that important `NULL` checks are stripped for brevity. 
+However, the described steps in algorithm sections represent actual procedures in these routines._
 
-Let us first understand the declared data types in `graph.h` used to represent the graph: 
+In `graph.h`, some data types are created to describe the graph: 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.h, 4-17 %}
+{% include_absolute projects/graphs/graph.h, 4-14 %}
 {% endhighlight %}
-
 
 The `Neighbour` struct represents an adjacency list of an arbitrary vertex `i` -- showing
 the `vertexValue` of the neighbouring node, the `weight` of its edge and a pointer to the `next` possible neighbouring
@@ -73,58 +73,58 @@ node of `i`. You can keep traversing this linked list until you hit the case in 
 that there are no more neighbours of `i` left.
 
 The `Graph` type includes two simple integer counters that track the *maximum* number of vertices `nv` 
--- read-only, passed during initialization -- and the number of edges `ne` that grows as these are included in the DS.
-The `Neighbour** nb` has the actual graph representation as a list of adjacency lists: you get the neighbours of
+-- read-only, passed during initialization -- and the number of edges `ne` that grows as these are included in the data structure.
+The `Neighbour** nb` field that actually represents the graph as **a list of adjacency lists**: you get the neighbours of
 a given vertex `i` by reading `nb[i]` in linear time.
 
 I should say, though, that the `graph.h` was supplied as part of the assignment and, thus, I couldn't really
-think of new, more interesting ways of representing the graph, but I think that having $$ O(n) $$ time complexity
-here shouldn't be much of an issue. Also, I do not know of further optimizations people do regarding this DS:
+think of new, interesting ways of representing the graph, but I think that having $$ O(n) $$ time complexity
+here shouldn't be much of an issue. Also, I do not know of further optimizations people do regarding graphs:
 [it's a whole part of Computer Science](https://en.wikipedia.org/wiki/Graph_theory).
 
 The last custom type is called `Edge` which I created for use in Kruskal's algorithm:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.h, 20-24 %}
+{% include_absolute projects/graphs/graph.h, 16-20 %}
 {% endhighlight %}
 
-The significant difference from this data type to `Neighbour` lies in the fact that `Edge`
-encapsulates all the necessary information for describing an edge in a graph inside its memory
-layout. The two vertices `u` and `v` along with the weight are all the information needed
+The `Edge` data type houses all the necessary information for describing an edge of a graph inside its memory
+layout. The two vertices `u` and `v` along with the `weight` of the edge between them are all the information needed
 to generate a minimum spanning tree. More on that later.
 
 The functions exposed by `graph.h` are listed below:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.h, 26-32 %}
+{% include_absolute projects/graphs/graph.h, 22-28 %}
 {% endhighlight %}
 
 I won't blab about all these functions since some are trivial to understand and quite standard from a C programming perspective.
-This post focuses on `bfs`, `kruskal`, and some `static` helper functions declared in the source file which are crucial
+This post focuses on `bfs`, `kruskal`, and some `static` helper functions in the definition file which are crucial
 for the latter.
 
-Still, before we dive deep into breadth-first search and Kruskal's, I'll unfurl the queue implementation for a matter
-of completion. Feel free to skip it, if you fancy.
+Even though it may be considered a simple topic for technical readers, 
+I'll unfurl the queue implementation for a matter of completion. 
+Feel free to <a href="#breadth-first-search" style="text-decoration: none; color: blue;">skip it</a>, if you fancy.
 
-`queue.h`:
+In the header file, two custom types are created:
 {% highlight c %}
-{% include_absolute projects/graphs/queue.h, 4-17 %}
+{% include_absolute projects/graphs/queue.h, 5-13 %}
 {% endhighlight %}
 
-The queue will only really be used in BFS. As such, the first type `QueueNode` only needs a pointer
-to the neighbouring vertex and another one for the next node in queue.
+The queue will only really be used in the breadth-first search algorithm. As such, the `QueueNode` type only needs a pointer
+to the adjacency list of the current vertex (`nb`) and another one for the `next` node in queue.
 The `Queue` itself has members for the front and the back of the ADT, since 
-we'll be needing constant time for both `front` read and `back` write -- after all, this where this data
+constant time will be needed for both `front` read and `back` write -- after all, this where this data
 structure excels.
 
 The exposed functions are:
 {% highlight c %}
-{% include_absolute projects/graphs/queue.h, 20-24 %}
+{% include_absolute projects/graphs/queue.h, 16-20 %}
 {% endhighlight %}
 
-Again, pretty usual stuff. Both `enqueue` and `dequeue` run in $$O(1)$$ time just like a standard queue.
+Pretty usual stuff. Both `enqueue` and `dequeue` run in $$O(1)$$ time just like a standard queue.
 `is_queue_empty` evaluates the `q->front` pointer giving us information on remaining vertices in queue.
-Consequently, we can control the graph traversal using this auxiliary structure.
+Consequently, it can -- and will -- be used to control the graph traversal.
 
-An interesting difference in my `dequeue` implementation is that it encompasses **peeking and popping**, i.e.
+A point that's worth mentioning is that my `dequeue` implementation encompasses both **peeking and popping**, i.e.
 it returns the `QueueNode` in front of the queue and moves on with it. I found this approach
 easier to implement in the BFS algorithm, even though you have to be extra careful regarding leaking
 memory and losing information.
@@ -133,8 +133,8 @@ memory and losing information.
 <h3 id="breadth-first-search">
   <a href="#breadth-first-search" style="text-decoration: none; color: blue;">Breadth-first search (BFS)</a>
 </h3>
-The [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) implementation starts with the creation of two auxiliary structures 
-necessary for the graph traversal logic.
+The [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) implementation (`bfs` in `graph.c`)
+starts with the creation of two auxiliary structures necessary for the graph traversal logic.
 A `verticesToVisit` queue which holds enqueued vertices during the traversal for the later exploration
 of their neighbours. 
 
@@ -143,18 +143,18 @@ of their neighbours.
 {% include_absolute projects/graphs/graph.c, 132-132 %}
 {% endhighlight %}
 
-Notice that the `visited` array is a pointer of `int` and is allocated using `calloc`. Unlike the college canon, `malloc`,
+The `visited` array is a pointer of `int` and is allocated using `calloc`. Unlike `malloc`, the college canon,
 this function allocates a block of memory and [zero initializes all of its bytes to zero](https://en.cppreference.com/w/c/memory/calloc).
 Due to this behavior, I could leverage the initial status of zero (false) in the `visited` array as a way of saying that all
 vertices were initially unvisited, which makes sense.
 
 At the end of the day, this array is just a pointer to boolean states, so you may query
 `visited[i]` of a given vertex `i` and check its result: $$1$$ in case it has been visited, $$0$$ otherwise.
-All in all, it behaves just like the `g->nb` list of adjacency lists of the graph.
+All in all, it behaves similarly to the graph's `nb` list of adjacency lists.
 
-The gist of the algorithm lies in a `do {...} while()` loop. The old implementation I made used a "usual" `while` loop, but it 
-required an auxiliary, heap allocated `initialVertex` variable to be enqueued and, thus, allow the loop to start.
-Once again, I do not know if I made the right decision -- if there's such thing --, but I refactored the algorithm to 
+The gist of the BFS algorithm lies in a `do {...} while()` loop. The old implementation I made used a `while` loop, but it 
+required an auxiliary, heap allocated variable to be enqueued, making the checked condition evaluate to true, and, thus, allowing the loop to start.
+I do not know if I made the right decision -- if there's such thing --, but I refactored the algorithm to 
 leverage the former C construct.
 
 {% highlight c %}
@@ -165,19 +165,20 @@ leverage the former C construct.
 {% include_absolute projects/graphs/graph.c, 188-188 %}
 {% endhighlight %}
 
-
-
-I found this interesting because this construct immediately enters the loop's body and *later* evaluates the condition,
+It was an interesting refactor because a `do {...} while()` *enters the loop's body immediately and evaluates its condition afterwards*,
 so it's like the semantics of it express that the **initial run will be different** (which it is). It also discarded
-the use of the previously mentioned `initialVertex` heap variable and hacky first-time enqueuing.
+the use of the previously mentioned helper variable and hacky first-time enqueuing.
 
-The refactoring led to some branching in the loop's internal (to detect if it's a first run), but I don't think it negatively impacted
-readability. I know `do {...} while()` loops aren't new in programming, but I rarely used them. Using them in this context
+The refactoring did lead to some branching in the loop's internal (to check if it's a first run), but I don't think it negatively impacted
+readability. I know `do {...} while()` loops aren't new in programming, but I rarely used them. Frankly, though, using them in this context
 exposed me to a **new way of thinking about and solving the problem**, which is an integral part of the engineering 
-[ethos](https://en.wikipedia.org/wiki/Ethos) of continuous improvement.
+[ethos](https://en.wikipedia.org/wiki/Ethos) of continuously improving oneself.
 
+---
+<br>
 Dequeuing from an empty queue will return a `NULL` pointer, which means the program is faced with the initial case
-of the traversal. The variable `currentVertexValue` is assigned to `initialVertexValue` (the vertex chosen by the user to start BFS from), and
+of the traversal (first run of the algorithm). 
+The variable `currentVertexValue` is assigned to `initialVertexValue` (vertex chosen by the user to start BFS from), and
 then used to obtain the adjacency list of it (`currentVertexNeighbours`).
 
 
@@ -186,13 +187,13 @@ then used to obtain the adjacency list of it (`currentVertexNeighbours`).
         }
 {% endhighlight %}
 
-In order for the algorithm to properly work, the initial vertex has to be immediately marked as visited, otherwise
+In order for the algorithm to properly work, the initial vertex has to be immediately marked as visited in this branch, otherwise
 when it's found during traversal it will be revisited leading to nodes being visited in unexpected order and 
-increased runtime. The subsequent vertices will be visited during the adjacency list traversal.
+increased runtime.
 
-In the `else` branch, the `currentVertex` is firstly extracted from the `qn` queue node, and `currentVertexValue`
-is obtained by reading the struct pointer. Analogous to the first case, the adjacency list is obtained through
-the global graph struct: `g->nb[currentVertexValue]`
+The `else` branch will run for subsequent vertices.
+Here, the dequeued `qn` node won't be `NULL` and the `currentVertex` is extracted from it. Then, `currentVertexValue`
+and `currentVertexNeighbours` are obtained by reading the corresponding struct pointers.
 
 {% highlight c %}
 {% include_absolute projects/graphs/graph.c, 152-161 %}
@@ -210,11 +211,24 @@ There's also a copying step along with the `visited` array so the implementation
 (where $$V$$ is the amount of vertices in the graph). In spite of this, the time complexity of the algorithm is $$O(V+E)$$ since all 
 vertices are visited and all edges are explored.
 
+Starting from vertex **0**, the order in which the vertices of the [analyzed graph](#discussed-graph) are visited is shown below:
+```
+Visiting 0
+Visiting 8
+Visiting 1
+Visiting 7
+Visiting 9
+Visiting 3
+Visiting 6
+Visiting 4
+Visiting 5
+```
 
 <h3 id="kruskals-algorithm">
   <a href="#kruskals-algorithm" style="text-decoration: none; color: blue;">Kruskal's algorithm</a>
 </h3>
-The desired outcome from running [Kruskal's](https://en.wikipedia.org/wiki/Kruskal%27s_algorithm) is to have a 
+The desired outcome from running [Kruskal's](https://en.wikipedia.org/wiki/Kruskal%27s_algorithm)
+(`kruskal` in `graph.c`) is to have a 
 [minimum spanning tree (MST)](https://en.wikipedia.org/wiki/Minimum_spanning_tree)
 at the end of the algorithm. In essence, **a MST is a subgraph of an undirected and weighted graph 
 that connects all vertices without forming any cycles and has the minimum possible total edge weight**.
@@ -234,15 +248,15 @@ How's that for engineering the Internet?
 ---
 <br>
 Kruskal is a [greedy algorithm](https://en.wikipedia.org/wiki/Greedy_algorithm), and as such, works heuristically by picking 
-the *immediate best local* solution. What that means is that, in our case, the graph edges are sorted by ascending weights,
+the *immediate best local* solution. What that means is that, for this particular case, the graph edges will sorted by ascending weights,
 and then, the ones with the minimal weight that connect two vertices and do not form a cycle are immediately added to the tree,
-without ever considering if, in the grand scheme of things, this will be global optimal solution.
+*without ever considering if, in the grand scheme of things, this arrangement will be global optimal solution*.
 
-Given the relatively sparse graph in this assignment, the locally best solution should be sufficiently close to the global one. 
-After all, there are only $$14$$ edges, so the approximation should be a fair trade.   
+Given the relatively sparse graph in this assignment, the locally optimal solution should be sufficiently close to the global one. 
+After all, there are only $$14$$ edges, so the approximation, if any, should be a fair trade.   
 
 In case my explanation of greedy algorithms was too fleeting, I'll leave a helpful analogy that I came across in the
-article on [40 Key Computer Science Concepts Explained In Layman’s Terms](https://carlcheo.com/compsci):
+article [40 Key Computer Science Concepts Explained In Layman’s Terms](https://carlcheo.com/compsci):
 
 > Imagine you are going for hiking and your goal is to reach the highest peak possible. You already have the map before you start, but there are thousands of possible paths shown on the map. You are too lazy and simply don’t have the time to evaluate each of them. Screw the map! You started hiking with a simple strategy – be greedy and short-sighted. Just take paths that slope upwards the most.
 >
@@ -257,18 +271,18 @@ Past the theoretical discussion, let us get our hands dirty in the implementatio
 }
 {% endhighlight %}
 
-We `malloc` a block of memory for **all** inserted edges in the graph `g->ne`. This isn't great since
+A block of memory is allocated for **all** inserted edges in the graph. This isn't great since
 there's a chance that not each and every edge will be analyzed. I'll explain that in detail later, but for now, 
-let's assume we'll use all of them.
+let's assume all of them will be used.
 
-Next, we traverse entirety of the graph in its $$V$$ vertices and $$E$$ edges using the adjacency lists. So this nested `for`
+Next, the entirety of the graph is traversed in its $$V$$ vertices and $$E$$ edges using the adjacency lists. So this nested `for`
 loop runs in $$O(V+E)$$ linear time. 
 {% highlight c %}
 {% include_absolute projects/graphs/graph.c, 209-217 %}
 {% endhighlight %}
 
-An `if` clause stores and [deduplicates](https://en.wikipedia.org/wiki/Data_deduplication) edges since we're dealing
-with an undirected graph. The conditional only stores edges $$ (u, v) $$ where $$ u < v $$. This is a design matter, since
+An `if` clause is responsible for storing and [deduplicating](https://en.wikipedia.org/wiki/Data_deduplication) edges as the
+graph is undirected. The conditional only stores edges $$ (u, v) $$ where $$ u < v $$. This is a design matter, since
 picking the edge when $$u$$ is greater will also achieve deduplication, but I think that selecting the edges in ascending order
 is somehow more intuitive.
 
@@ -278,7 +292,7 @@ despite its name is not enforced nor guaranteed by the C standard to be [quickso
 {% include_absolute projects/graphs/graph.c, 219-220 %}
 {% endhighlight %}
 
-At this point, we face one of the `static` helper functions I mentioned earlier:
+At this point, one of the `static` helper functions I mentioned earlier shows itself:
 {% highlight c %}
 {% include_absolute projects/graphs/graph.c, 331-338 %}
 {% endhighlight %}
@@ -292,8 +306,8 @@ for creating a forest consisting of single node trees for every vertex in the gr
 {% include_absolute projects/graphs/graph.c, 233-236 %}
 {% endhighlight %}
 
-The `rank` array is a heuristic approach to each tree's height. Since it's `calloc` allocated, initially all
-trees have rank $$0$$. It will be used for updating the forest as we start connecting vertices in Kruskal's
+The `rank` array is a heuristic approach to each tree's height. Since it's `calloc` allocated, all
+trees initially have rank $$0$$. It will be used for updating the forest as the vertices are connected in Kruskal's
 main loop. These two variables make up a [Union-Find data structure](https://en.wikipedia.org/wiki/Disjoint-set_data_structure).
 
 Finally, we get to the core of the matter: the `for` loop.
@@ -315,13 +329,13 @@ halting the algorithm after all edges are checked.
 On the other hand, the `includedEdges` variable keeps track of inserted edges and stops the algorithm once it's equal to
 `g->nv - 1`: [the spanning tree of a given graph with $$V$$ vertices is complete once it has $$V-1$$ edges](https://en.wikipedia.org/wiki/Minimum_spanning_tree#Possible_multiplicity).
 
-Inside the loop, we access all information regarding the currently analyzed edge `i`:
+Inside the loop, all information regarding the currently analyzed edge `i` is accessed:
 {% highlight c %}
 {% include_absolute projects/graphs/graph.c, 255-257 %}
 {% endhighlight %}
 
 For the next step, a conditional statement safeguards the crux of Kruskal's: adding the edge of two vertices 
-without forming cycles in the tree:
+without forming cycles in the tree.
 {% highlight c %}
 {% include_absolute projects/graphs/graph.c, 259-264 %}
 {% endhighlight %}
@@ -336,34 +350,38 @@ own tree.
 
 Otherwise, it leverages recursion to find the parent of a given vertex already included in the incipient MST.
 Here, something amazing happens: until the base case is reached, all the vertices deep in recursion will
-have their parent assigned the value returned by the function call.
+have their parent's value assigned to the value returned by the function calls.
 
 This optimization is called [path compression](https://cp-algorithms.com/data_structures/disjoint_set_union.html#path-compression-optimization)
-and makes subsequent `_find` calls faster by "flattening" the tree, making paths to the root/parent shorter!
+and makes paths to the set's parent shorter, quickening subsequent `_find` calls.
 Human ingenuity is amazing!
 
 <p align="center">
   <img src="../../../visual_assets/path_compression.png" alt="Image showing two trees. The one on the left is unoptimized, and 
   the one on the right is flattened due to path compression." />
   <em>Image extracted from <a href="https://cp-algorithms.com/">Algorithms for Competitive Programming</a>.</em>
+  <br>
+  <em>Notice how the tree on the right is flatter.</em>
 </p>
 
-This matters a lot because now we can **check if two vertices $$u$$ and $$v$$ are in the same set by simply checking the set's
-representative (parent)**, instead of having to traverse the entirety of inserted nodes.
+<br>
+After `_find` is called for the first time, checking whether two vertices $$u$$ and $$v$$ are in the same set
+should be faster as the set's representative will probably be read in $$O(1)$$. Unless the graph is too dense,
+the entirety of nodes won't be traversed for the parent check.
 
-In case they are in NOT in the same set, the conditional evaluates to true:
+In case $$u$$ and $$v$$ are in NOT in the same set, the conditional evaluates to true:
 
 {% highlight c %}
 {% include_absolute projects/graphs/graph.c, 264-264 %}
 {% endhighlight %}
 
-and we can include them in the MST:
+and they can be included in the MST:
 
 {% highlight c %}
 {% include_absolute projects/graphs/graph.c, 265-265 %}
 {% endhighlight %}
 
-At last, it's necessary to update the Union Find structure, since $$u$$ and $$v$$ are now in the same set (the MST):
+As the vertices are now in the same set (the MST), the Union Find structure has to be updated:
 {% highlight c %}
 {% include_absolute projects/graphs/graph.c, 266-268 %}
 {% endhighlight %}
@@ -376,16 +394,16 @@ The `_unionSets` function does $$u \cup v$$ taking the ranks of both trees in ac
 
 Inside the [defensive](https://en.wikipedia.org/wiki/Defensive_programming) if clause lies the mechanism
 by which two sets are joined. The set with the greatest rank -- recall that it's a heuristic for a tree's height --
-is selected as the root of the new $$u \cup v$$ set. This ensures that the tree doesn't grow unnecessarily since
-the smaller tree's rank won't affect the larger one's.
+is selected as the root of the new $$u \cup v$$ set. **This ensures that the tree doesn't grow unnecessarily since
+the smaller tree's rank won't affect the larger one's**.
 
-In case both sets have the same rank, we arbitrarily pick the first one $$u$$ as the representative of the new
+In case both sets have the same rank, the first one is arbitrarily picked, $$u$$, as the representative of the new
 set and increment its rank by one.
 
-Sorting dominates the runtime of Kruskal's algorithm so the main loop I mentioned earlier shouldn't affect
+Sorting dominates the runtime of Kruskal's algorithm so the main loop shouldn't affect
 performance as much as the former step.
 
-At the end of the main loop, auxiliary data structures are freed and the MST is returned to the caller:
+Once the algorithmic procedure is done, auxiliary data structures are freed and the MST is returned to the caller:
 {% highlight c %}
 {% include_absolute projects/graphs/graph.c, 272-276 %}
 {% endhighlight %}
@@ -395,11 +413,11 @@ At the end of the main loop, auxiliary data structures are freed and the MST is 
   <a href="#usage-example" style="text-decoration: none; color: blue;">Usage example</a>
 </h3>
 
-Now that we've covered some properties and algorithms of graphs, we shall put our discussion in practice
-by analyzing `main.c`. I made this assignment from a top down perspective using [TDD](https://en.wikipedia.org/wiki/Test-driven_development),
+Now that some properties and algorithms of graphs were discussed, I'll put our discussion in practice
+by analyzing `main.c`. I made this assignment from a top down perspective through test-driven development,
 so I'll first list what the binary is expected to achieve, and later show its source.
 
-1. Create the graph itself (as we've seen, we'll create a representation of it)
+1. Create the graph itself (as we've seen, a representation of it)
 2. Add the edges that make up the [graph in the assignment](#discussed-graph)
 3. Pretty print the graph to `stdout` as an adjacency list and as an adjacency matrix
 4. Print the visited vertices in BFS order
@@ -422,15 +440,15 @@ gcc -g -Wall -Wextra main.c graph.c queue.c -o graphs
 valgrind -s --track-origins=yes --leak-check=full ./graphs
 {% endhighlight %}
 
-Thankfully, we indeed get:
+Thankfully, Valgrind's output indeed shows no errors or leaks:
 ```
-==52804== HEAP SUMMARY:
-==52804==     in use at exit: 0 bytes in 0 blocks
-==52804==   total heap usage: 132 allocs, 132 frees, 10,720 bytes allocated
-==52804== 
-==52804== All heap blocks were freed -- no leaks are possible
-==52804== 
-==52804== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+HEAP SUMMARY:
+    in use at exit: 0 bytes in 0 blocks
+  total heap usage: 132 allocs, 132 frees, 10,720 bytes allocated
+
+All heap blocks were freed -- no leaks are possible
+
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
 ```
 
 The program's standard output:

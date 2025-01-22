@@ -258,7 +258,7 @@ Graph* kruskal(Graph* g) {
 
         /*
         If this conditional statement is true, it's safe to add the edge to the MST.
-        Since they have different parents, they are in disjoint sets (different subtrees).
+        Since they have different parents, they are in disjoint sets (different trees).
         Thus, no cycle will be formed
         */
         if (_find(parents, u) != _find(parents, v)) {

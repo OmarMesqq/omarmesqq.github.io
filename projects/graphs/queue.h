@@ -1,20 +1,16 @@
 #ifndef QUEUE_H
 #define QUEUE_H
-
 #include "graph.h"
 
-typedef struct _queueNode QueueNode;
-typedef struct _queue Queue;
-
-struct _queueNode {
+typedef struct _queueNode {
     Neighbour* nb;
     QueueNode* next;
-};
+} QueueNode;
 
-struct _queue {
+typedef struct _queue {
     QueueNode* front;
     QueueNode* back;
-};
+} Queue;
 
 
 Queue* create_queue();
