@@ -4,7 +4,7 @@
 
 typedef struct _queueNode {
     Neighbour* nb;
-    QueueNode* next;
+    struct _queueNode* next;
 } QueueNode;
 
 typedef struct _queue {

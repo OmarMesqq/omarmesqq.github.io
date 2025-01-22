@@ -4,7 +4,7 @@
 typedef struct _neighbour { 
     int vertexValue;
     float weight; 
-    Neighbour*  next; 
+    struct _neighbour*  next; 
 } Neighbour;
 
 typedef struct _graph { 
