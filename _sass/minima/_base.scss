@@ -11,41 +11,41 @@ dl, dd, ol, ul, figure {
 /**
  * Dark theme - overrides other settings
  */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #121212 !important; /* Forces dark background */
-    color: #e0e0e0 !important; /* Forces light text */
-  }
+// @media (prefers-color-scheme: dark) {
+//   body {
+//     background-color: #121212 !important; /* Forces dark background */
+//     color: #e0e0e0 !important; /* Forces light text */
+//   }
 
-  a {
-    color: #bb86fc; /* Accessible link color */
-  }
+//   a {
+//     color: #bb86fc; /* Accessible link color */
+//   }
 
-  blockquote {
-    color: #b3b3b3;
-    border-left-color: #444;
-  }
+//   blockquote {
+//     color: #b3b3b3;
+//     border-left-color: #444;
+//   }
 
-  pre, code {
-    background-color: #2d2d2d; /* Darker background for code blocks */
-    color: #f8f8f2; /* Light text for code */
-  }
+//   pre, code {
+//     background-color: #2d2d2d; /* Darker background for code blocks */
+//     color: #f8f8f2; /* Light text for code */
+//   }
 
-  table {
-    color: #ccc;
-    border-color: #444;
-    tr:nth-child(even) {
-      background-color: #333;
-    }
-    th {
-      background-color: #444;
-      border-color: #555;
-    }
-    td {
-      border-color: #444;
-    }
-  }
-}
+//   table {
+//     color: #ccc;
+//     border-color: #444;
+//     tr:nth-child(even) {
+//       background-color: #333;
+//     }
+//     th {
+//       background-color: #444;
+//       border-color: #555;
+//     }
+//     td {
+//       border-color: #444;
+//     }
+//   }
+// }
 
 
 
