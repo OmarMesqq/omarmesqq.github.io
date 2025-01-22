@@ -49,3 +49,9 @@ $on-laptop:        800px !default;
   "minima/layout",
   "minima/syntax-highlighting"
 ;
+
+
+// Remove strip in header
+.site-header {
+  border-top: none;
+}
