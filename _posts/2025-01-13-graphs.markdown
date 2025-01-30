@@ -37,23 +37,18 @@ I'll treat the graph as an adjacency list.
 <h3 id="project-structure">
   <a href="#project-structure" style="text-decoration: none; color: blue;">Project structure</a>
 </h3>
-I coded this in C, partly because it's mandatory as per course specification, although I should mention
-that I enjoy coding in this language. Since I have no expectations
-regarding anyone contributing to this project, I didn't create a repository for it.
-Instead, I included it in this blog's repo. You can take a look at the individual files below
-or access the project's root [here](https://github.com/OmarMesqq/omarmesqq.github.io/tree/main/projects/graphs).
+The project was written in C per course specification. Still, I enjoy coding in this language
+as the generated machine code is blazingly fast and allows you to tinker with the computer's memory
+to make some custom optimizations. Of course, the language itself isn't a guarantee for
+performatic software: usual software development guidelines apply such as using suitable
+data structures, taking into account algorithmic complexity of loops, etc.
 
-- [graph.h](../../../projects/graphs/graph.h)
-- [graph.c](../../../projects/graphs/graph.c)
-- [main.c](../../../projects/graphs/main.c)
-- [queue.h](../../../projects/graphs/queue.h)
-- [queue.c](../../../projects/graphs/queue.c)
+Programming in C is a double edged sword as you get this amazing advantages, you are also 
+solely resposible for memory management, bounds checking, and even being aware of [demons will coming out of your nose](https://en.wikipedia.org/wiki/Undefined_behavior) (this is by far the most dangerous part, as it makes debugging awfully difficult).
 
-The first two `graph.h` and `graph.c` files correspond to declarations and definitions of the graph API which will
-be used for [testing](https://en.wikipedia.org/wiki/Test-driven_development) in `main.c`, 
-whereas `queue.h` and `queue.c` contain the declarations and definitions of 
-a simple [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) used as an auxiliary data structure in
-the graph algorithms.
+
+You can check out the code in my [GitHub repository](https://github.com/OmarMesqq/graphs), but I'll try
+to briefly explain its key files.
 
 <h3 id="code-description">
   <a href="#code-description" style="text-decoration: none; color: blue;">Code description</a>
@@ -62,9 +57,14 @@ _In this and in the following sections, I'll discuss theory and code. You may tr
 as pseudocode for the sole fact that important `NULL` checks are stripped for brevity. 
 However, the described steps in algorithm sections represent actual procedures in these routines._
 
+The program's entrypoint, `main.c`, contains the actual usage and [tests](https://en.wikipedia.org/wiki/Test-driven_development)
+of the API. The API itself is declared and defined in `graph.h` and `graph.c` respectively. There's also a
+"private" (in the C lingo, one may call it `static`) API that is [hidden](https://en.wikipedia.org/wiki/Information_hiding) from the main file, and
+contains a [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) ADT used for graph traversal.
+
 In `graph.h`, some data types are created to describe the graph: 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.h, 4-14 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.h, 4-14 %}
 {% endhighlight %}
 
 The `Neighbour` struct represents an adjacency list of an arbitrary vertex `i` -- showing
@@ -84,7 +84,7 @@ here shouldn't be much of an issue. Also, I do not know of further optimizations
 
 The last custom type is called `Edge` which I created for use in Kruskal's algorithm:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.h, 16-20 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.h, 16-20 %}
 {% endhighlight %}
 
 The `Edge` data type houses all the necessary information for describing an edge of a graph inside its memory
@@ -93,7 +93,7 @@ to generate a minimum spanning tree. More on that later.
 
 The functions exposed by `graph.h` are listed below:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.h, 22-28 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.h, 22-28 %}
 {% endhighlight %}
 
 I won't blab about all these functions since some are trivial to understand and quite standard from a C programming perspective.
@@ -106,7 +106,7 @@ Feel free to <a href="#breadth-first-search" style="text-decoration: none; color
 
 In the header file, two custom types are created:
 {% highlight c %}
-{% include_absolute projects/graphs/queue.h, 5-13 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/queue.h, 5-13 %}
 {% endhighlight %}
 
 The queue will only really be used in the breadth-first search algorithm. As such, the `QueueNode` type only needs a pointer
@@ -117,7 +117,7 @@ structure excels.
 
 The exposed functions are:
 {% highlight c %}
-{% include_absolute projects/graphs/queue.h, 16-20 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/queue.h, 16-20 %}
 {% endhighlight %}
 
 Pretty usual stuff. Both `enqueue` and `dequeue` run in $$O(1)$$ time just like a standard queue.
@@ -139,8 +139,8 @@ A `verticesToVisit` queue which holds enqueued vertices during the traversal for
 of their neighbours. 
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 120-127 %}
-{% include_absolute projects/graphs/graph.c, 132-132 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 120-127 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 132-132 %}
 {% endhighlight %}
 
 The `visited` array is a pointer of `int` and is allocated using `calloc`. Unlike `malloc`, the college canon,
@@ -158,11 +158,11 @@ I do not know if I made the right decision -- if there's such thing --, but I re
 leverage the former C construct.
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 139-142 %}
-{% include_absolute projects/graphs/graph.c, 144-145 %}
-{% include_absolute projects/graphs/graph.c, 152-153 %}
-{% include_absolute projects/graphs/graph.c, 161-161 %}
-{% include_absolute projects/graphs/graph.c, 188-188 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 139-142 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 144-145 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 152-153 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 161-161 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 188-188 %}
 {% endhighlight %}
 
 It was an interesting refactor because a `do {...} while()` *enters the loop's body immediately and evaluates its condition afterwards*,
@@ -172,7 +172,7 @@ the use of the previously mentioned helper variable and hacky first-time enqueui
 The refactoring did lead to some branching in the loop's internal (to check if it's a first run), but I don't think it negatively impacted
 readability. I know `do {...} while()` loops aren't new in programming, but I rarely used them. Frankly, though, using them in this context
 exposed me to a **new way of thinking about and solving the problem**, which is an integral part of the engineering 
-[ethos](https://en.wikipedia.org/wiki/Ethos) of continuously improving oneself.
+[ethos](https://en.wikipedia.org/wiki/Ethos) of continuous improvement.
 
 ---
 <br>
@@ -183,7 +183,7 @@ then used to obtain the adjacency list of it (`currentVertexNeighbours`).
 
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 144-151 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 144-151 %}
         }
 {% endhighlight %}
 
@@ -196,14 +196,14 @@ Here, the dequeued `qn` node won't be `NULL` and the `currentVertex` is extracte
 and `currentVertexNeighbours` are obtained by reading the corresponding struct pointers.
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 152-161 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 152-161 %}
 {% endhighlight %}
 
 After the branching is done, the actual traversal in the vertice's adjacency list begins:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 163-174 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 163-174 %}
                 // allocation check and pointer assignment...
-{% include_absolute projects/graphs/graph.c, 182-186 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 182-186 %}
 {% endhighlight %}
 
 This is pretty much like a linked list traversal so it should run in $$O(E)$$ where $$E$$ is the number of edges in the list.
@@ -266,7 +266,7 @@ article [40 Key Computer Science Concepts Explained In Layman’s Terms](https:/
 
 Past the theoretical discussion, let us get our hands dirty in the implementation:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 195-203 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 195-203 %}
     .......
 }
 {% endhighlight %}
@@ -278,7 +278,7 @@ let's assume all of them will be used.
 Next, the entirety of the graph is traversed in its $$V$$ vertices and $$E$$ edges using the adjacency lists. So this nested `for`
 loop runs in $$O(V+E)$$ linear time. 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 209-217 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 209-217 %}
 {% endhighlight %}
 
 An `if` clause is responsible for storing and [deduplicating](https://en.wikipedia.org/wiki/Data_deduplication) edges as the
@@ -289,12 +289,12 @@ is somehow more intuitive.
 Once the edges are collected, they have to be sorted. I used the [C library `qsort`](https://en.cppreference.com/w/c/algorithm/qsort), which,
 despite its name is not enforced nor guaranteed by the C standard to be [quicksort](https://en.wikipedia.org/wiki/Quicksort).
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 219-220 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 219-220 %}
 {% endhighlight %}
 
 At this point, one of the `static` helper functions I mentioned earlier shows itself:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 331-338 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 331-338 %}
 {% endhighlight %}
 
 The argument types and return branches are determined by `qsort`'s API. I just made the function comply to it.
@@ -302,8 +302,8 @@ The argument types and return branches are determined by `qsort`'s API. I just m
 Up next, two crucial heap allocated structures are created. The first one is called `parents` and is responsible
 for creating a forest consisting of single node trees for every vertex in the graph.
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 222-224 %}
-{% include_absolute projects/graphs/graph.c, 233-236 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 222-224 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 233-236 %}
 {% endhighlight %}
 
 The `rank` array is a heuristic approach to each tree's height. Since it's `calloc` allocated, all
@@ -313,8 +313,8 @@ main loop. These two variables make up a [Union-Find data structure](https://en.
 Finally, we get to the core of the matter: the `for` loop.
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 238-239 %}
-{% include_absolute projects/graphs/graph.c, 248-254 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 238-239 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 248-254 %}
 {% endhighlight %}
 
 Notice how the minimum spanning tree is of type `Graph*`. This not only makes the implementation simpler by
@@ -331,13 +331,13 @@ On the other hand, the `includedEdges` variable keeps track of inserted edges an
 
 Inside the loop, all information regarding the currently analyzed edge `i` is accessed:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 255-257 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 255-257 %}
 {% endhighlight %}
 
 For the next step, a conditional statement safeguards the crux of Kruskal's: adding the edge of two vertices 
 without forming cycles in the tree.
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 259-264 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 259-264 %}
 {% endhighlight %}
 
 If the vertex already is the root of the tree (parent of the set) containing itself, the `_find` function returns
@@ -345,7 +345,7 @@ its value immediately. This scenario should be more common at the start of the r
 own tree.
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 340-349 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 340-349 %}
 {% endhighlight %}
 
 Otherwise, it leverages recursion to find the parent of a given vertex already included in the incipient MST.
@@ -372,24 +372,24 @@ the entirety of nodes won't be traversed for the parent check.
 In case $$u$$ and $$v$$ are in NOT in the same set, the conditional evaluates to true:
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 264-264 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 264-264 %}
 {% endhighlight %}
 
 and they can be included in the MST:
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 265-265 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 265-265 %}
 {% endhighlight %}
 
 As the vertices are now in the same set (the MST), the Union Find structure has to be updated:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 266-268 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 266-268 %}
 {% endhighlight %}
 
 The `_unionSets` function does $$u \cup v$$ taking the ranks of both trees in account:
 
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 351-367 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 351-367 %}
 {% endhighlight %}
 
 Inside the [defensive](https://en.wikipedia.org/wiki/Defensive_programming) if clause lies the mechanism
@@ -405,7 +405,7 @@ performance as much as the former step.
 
 Once the algorithmic procedure is done, auxiliary data structures are freed and the MST is returned to the caller:
 {% highlight c %}
-{% include_absolute projects/graphs/graph.c, 272-276 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/graph.c, 272-276 %}
 {% endhighlight %}
 
 
@@ -414,7 +414,7 @@ Once the algorithmic procedure is done, auxiliary data structures are freed and 
 </h3>
 
 Now that some properties and algorithms of graphs were discussed, I'll put our discussion in practice
-by analyzing `main.c`. I made this assignment from a top down perspective through test-driven development,
+by analyzing `main.c`. I made this assignment from a top down perspective,
 so I'll first list what the binary is expected to achieve, and later show its source.
 
 1. Create the graph itself (as we've seen, a representation of it)
@@ -428,7 +428,7 @@ so I'll first list what the binary is expected to achieve, and later show its so
 
 Most of them are clearly addressed in the binaries entrypoint (`main.c`):
 {% highlight c %}
-{% include_absolute projects/graphs/main.c, 1-55 %}
+{% include_absolute https://raw.githubusercontent.com/OmarMesqq/graphs/refs/heads/main/main.c, 1-55 %}
 {% endhighlight %}
 
 Since all the $$14$$ edges **have** to be inserted, I used an `assert` call there.
